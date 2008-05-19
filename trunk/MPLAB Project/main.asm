@@ -185,7 +185,7 @@ Loop
 ; Actual delay = 0.1 seconds = 100000 cycles
 ; Error = 0 %
 
-	cblock
+	cblockTEST
 	d1
 	d2
 	endc
