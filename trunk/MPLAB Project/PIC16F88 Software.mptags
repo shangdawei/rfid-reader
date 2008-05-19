@@ -1,0 +1,19 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.5.4	//
+!_TAG_REVISION_NAME	MCHPTags	//
+!_TAG_REVISION_VERSION	6.0.1	//
+Delay100ms	D:\Projects\Electronics\RFID Reader\main.asm	193;"	l	line:193
+Delay100ms_0	D:\Projects\Electronics\RFID Reader\main.asm	199;"	l	line:199
+ISR	D:\Projects\Electronics\RFID Reader\main.asm	104;"	l	line:104
+Loop	D:\Projects\Electronics\RFID Reader\main.asm	174;"	l	line:174
+PCLATH_TEMP	D:\Projects\Electronics\RFID Reader\main.asm	90;"	q	line:90
+RESET	D:\Projects\Electronics\RFID Reader\main.asm	96;"	l	line:96
+START	D:\Projects\Electronics\RFID Reader\main.asm	131;"	l	line:131
+STATUS_TEMP	D:\Projects\Electronics\RFID Reader\main.asm	89;"	q	line:89
+W_TEMP	D:\Projects\Electronics\RFID Reader\main.asm	88;"	q	line:88
+movwf	D:\Projects\Electronics\RFID Reader\main.asm	196;"	v	line:196
+movwf	D:\Projects\Electronics\RFID Reader\main.asm	198;"	v	line:198
