@@ -18,8 +18,12 @@ filter_lib=*.lib
 filter_lkr=*.lkr
 [OTHER_FILES]
 file_000=no
+file_001=no
+file_002=no
 [FILE_INFO]
 file_000=main.asm
+file_001=Sampler.asm
+file_002=C:\Program Files\Microchip\MPASM Suite\LKR\16F88.lkr
 [SUITE_INFO]
 suite_guid={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}
 suite_state=
