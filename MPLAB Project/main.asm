@@ -34,9 +34,22 @@
 ;    Capture/Compare Module                                                   *
 ;                                                                             *
 ;******************************************************************************
-;                                                                             *
+;                      a                                                       *
 ;    Notes:                                                                   *
 ;                                                                             *
+;    This comment relates to MPLAB 7.61...                                    *
+;                                                                             *
+;    If interrupts are used, as in this template file, the 16F88.lkr          *
+;    file will need to be modified as follows: Remove the lines               *
+;                                                                             *
+;    CODEPAGE   NAME=vectors  START=0x0      END=0x4      PROTECTED           *
+;                                                                             *
+;    and                                                                      *
+;                                                                             *
+;    SECTION    NAME=STARTUP  ROM=vectors                                     *
+;                                                                             *
+;    In addition, change the start address of the page 0 section              *
+;    from 0x5 to 0x0                                                          *
 ;                                                                             *
 ;******************************************************************************
 ;                                                                             *
@@ -49,7 +62,9 @@
 ;------------------------------------------------------------------------------
 
      LIST      p=16F88              ; list directive to define processor
-     INCLUDE "P16F88.INC"         ; processor specific variable definitions
+     #INCLUDE <p16f88.inc>          ; processor specific variable definitions
+	
+	extern	SampleEncodedBits
 
 ;------------------------------------------------------------------------------
 ;
@@ -64,11 +79,7 @@
 
 ;     __CONFIG    _CONFIG1, _CP_OFF & _CCP1_RB0 & _DEBUG_OFF & _WRT_PROTECT_OFF & _CPD_OFF & _LVP_OFF & _BODEN_OFF & _MCLR_ON & _PWRTE_ON & _WDT_OFF & _INTRC_IO
 ;     __CONFIG    _CONFIG2, _IESO_OFF & _FCMEN_OFF
-
-	cblock 0x20
-		led
-	endc
-
+	
 ;------------------------------------------------------------------------------
 ;
 ; VARIABLE DEFINITIONS
@@ -85,23 +96,41 @@
 ;
 ;------------------------------------------------------------------------------
 
-W_TEMP         EQU        0x7D  ; w register for context saving (ACCESS)
-STATUS_TEMP    EQU        0x7E  ; status used for context saving (ACCESS)
-PCLATH_TEMP    EQU        0x7F  ; variable used for context saving
+; Example of using Shared Uninitialized Data Section
+INT_VAR        UDATA_SHR       
+W_TEMP         RES        1    ; w register for context saving (ACCESS)
+STATUS_TEMP    RES        1    ; status used for context saving (ACCESS)
+PCLATH_TEMP    RES        1    ; variable used for context saving
+
+; Example of using GPR Uninitialized Data
+GPR_VAR        UDATA           
+MYVAR1         RES        1    ; User variable placed by linker
+MYVAR2         RES        1    ; User variable placed by linker
+MYVAR3         RES        1    ; User variable placed by linker
+
+;------------------------------------------------------------------------------
+; EEPROM INITIALIZATION
+;
+; The 16F88 has 256 bytes of non-volatile EEPROM, starting at address 0x2100
+; 
+;------------------------------------------------------------------------------
+
+DATAEE    CODE  0x2100
+    DE    "MCHP"          ; Place 'M' 'C' 'H' 'P' at address 0,1,2,3
 
 ;------------------------------------------------------------------------------
 ; RESET VECTOR
 ;------------------------------------------------------------------------------
 
-RESET     ORG     0x0000            ; processor reset vector
-          PAGESEL START
+RESET     CODE    0x0000            ; processor reset vector
+          pagesel START
           GOTO    START             ; go to beginning of program
 
 ;------------------------------------------------------------------------------
 ; INTERRUPT SERVICE ROUTINE
 ;------------------------------------------------------------------------------
 
-ISR       ORG     0x0004            ; interrupt vector location
+INT_VECT  CODE    0x0004        ; interrupt vector location
 
 ;         Context saving for ISR
           MOVWF   W_TEMP            ; save off current W register contents
@@ -113,7 +142,6 @@ ISR       ORG     0x0004            ; interrupt vector location
 ;------------------------------------------------------------------------------
 ; USER INTERRUPT SERVICE ROUTINE GOES HERE
 ;------------------------------------------------------------------------------
-		
 
 ;         Restore context before returning from interrupt
           MOVF    PCLATH_TEMP,W     ; retrieve copy of PCLATH register
@@ -128,86 +156,13 @@ ISR       ORG     0x0004            ; interrupt vector location
 ; MAIN PROGRAM
 ;------------------------------------------------------------------------------
 
+PROGRAM   CODE    
+
 START
 
-;------------------------------------------------------------------------------
-; PLACE USER PROGRAM HERE
-;------------------------------------------------------------------------------
-
-; Enable all of A & B for Output
 	clrf STATUS ; this also sets bank 0
 	clrf PORTA
 
-;======================== Input & Output memory Aid =================
-; 1 (one) for Input - note that 1 and i look very much alike.
-; 0 (zero) for Output - note that 0 and O look very much alike.
-; But be sure to use numbers for setting the port pin directions.
-;====================================================================
-;========= TRIS command vs. TRISA, TRISB, etc register names ======
-; First generation PICs used a command TRIS (tristate) that assigned
-; the direction of the port pins. More modern PICs have registers
-; called TRISA, TRISB, etc. and the preferred method is to write to
-; those registers to control port direction.
-;====================================================================
-	movlw 0x00
-	banksel TRISA
-	movwf TRISA
-
-;===================== Ports with possible A/D inputs ===============
-; at this point a newbie would think that they had setup port A for
-; all outputs, but when the program is run there will be NO outputs
-; on port A. When a port contains the possibility of Analog to Digital
-; converters those pins are defaulted to analog inputs. This is the safe
-; thing to do to prevent damage. In the 16F88 port A has the analog inputs
-; and so the Analog Select register needs to be programmed to make whatever
-; port A bits we want to be Digital I/O pins. In this case we want all the
-; pins on port A to be digital so using the memory aid above (Oh or zero for
-; Output) we just clear the ANSEL register.
-;====================================================================
-
-	banksel ANSEL
-	clrf ANSEL
-
-	banksel PORTA
-	clrf led
-
-Loop
-	movlw b'00000001'
-	xorwf led, f
-	movfw led
-	movwf PORTA
-	call Delay100ms
-	goto Loop
-
-; Delay = 0.1 seconds
-; Clock frequency = 4 MHz
-
-; Actual delay = 0.1 seconds = 100000 cycles
-; Error = 0 %
-
-	cblockTEST
-	d1
-	d2
-	endc
-
-Delay100ms
-			;99993 cycles
-	movlw	0x1E
-	movwf	d1
-	movlw	0x4F
-	movwf	d2
-Delay100ms_0
-	decfsz	d1, f
-	goto	$+2
-	decfsz	d2, f
-	goto	Delay100ms_0
-
-			;3 cycles
-	goto	$+1
-	nop
-
-			;4 cycles (including call)
-	return
-
+	call SampleEncodedBits
 
 	end
