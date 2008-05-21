@@ -16,14 +16,36 @@ filter_inc=*.h;*.inc
 filter_obj=*.o
 filter_lib=*.lib
 filter_lkr=*.lkr
+[CAT_SUBFOLDERS]
+subfolder_src=
+subfolder_inc=
+subfolder_obj=
+subfolder_lib=
+subfolder_lkr=
+[FILE_SUBFOLDERS]
+file_000=.
+file_001=.
+file_002=.
+file_003=.
+file_004=.
+[GENERATED_FILES]
+file_000=no
+file_001=no
+file_002=no
+file_003=no
+file_004=no
 [OTHER_FILES]
 file_000=no
 file_001=no
 file_002=no
+file_003=no
+file_004=no
 [FILE_INFO]
 file_000=main.asm
 file_001=Sampler.asm
-file_002=C:\Program Files\Microchip\MPASM Suite\LKR\16F88.lkr
+file_002=LedDriver.asm
+file_003=C:\Program Files\Microchip\MPASM Suite\P16F88.INC
+file_004=C:\Program Files\Microchip\MPASM Suite\LKR\16F88.lkr
 [SUITE_INFO]
 suite_guid={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}
 suite_state=
@@ -37,3 +59,8 @@ vault={F17EEB7A-8D33-4A59-8CD5-BBF561CBB5B3}
 enable=0
 transport=0
 format=0
+[CUSTOM_BUILD]
+Pre-Build=
+Pre-BuildEnabled=1
+Post-Build=
+Post-BuildEnabled=1
