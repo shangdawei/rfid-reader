@@ -1,3 +1,5 @@
-#summary One-sentence summary of this page.
+#summary A high level view of the hardware design.
 
 [http://rfid-reader.googlecode.com/svn/wiki/HardwareDesign.png]
+
+In detail, suggested order: [PowerSupplyDesign Power Supply], [AntennaDesign Antenna Module], [FilterDesign Filtering Module], [TheChip Microchip], [IOMethods I/O methods]
