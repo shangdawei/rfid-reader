@@ -1,4 +1,4 @@
-#summary The overall design at the highest possible level of abstraction.
+#summary The overall design at the highest level of abstraction.
 
 ==Navigate the design==
 
