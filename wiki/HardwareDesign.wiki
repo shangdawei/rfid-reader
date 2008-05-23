@@ -3,4 +3,4 @@
 [http://rfid-reader.googlecode.com/svn/wiki/HardwareDesign.png]
 
 ===Click for detail (in suggested order):===
-the [PowerSupplyDesign Power Supply], the [AntennaDesign Antenna Module], the [FilterDesign Filtering Module], the [TheChip Microcontroller], and the [IOMethods I/O methods]
+[PowerSupplyDesign Power Supply], [AntennaDesign Antenna Module], [FilterDesign Filtering Module], [TheChip Microcontroller], [IOMethods I/O methods]
