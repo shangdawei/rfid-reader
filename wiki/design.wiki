@@ -1,4 +1,0 @@
-==Navigate the design==
-
-|| Software ||
-|| Hardware ||
