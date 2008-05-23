@@ -2,5 +2,6 @@
 
 [http://rfid-reader.googlecode.com/svn/wiki/HardwareDesign.png]
 
-===Click for detail (in suggested order):===
+===Click for detail:===
+
 [PowerSupplyDesign Power Supply], [AntennaDesign Antenna Module], [FilterDesign Filtering Module], [TheChip Microcontroller], [IOMethods I/O methods]
