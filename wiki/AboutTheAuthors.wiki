@@ -1,0 +1,5 @@
+#summary About the original authors of this project.
+
+This project is based on the Microchip 125 kHz Reference Design. It has been heavilly modified, for the better.
+
+This project was started by the Zeta Sigma Chapter of HKN at Polytechnic University in Brooklyn, NY. 
