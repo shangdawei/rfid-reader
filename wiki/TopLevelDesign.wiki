@@ -1,3 +1,5 @@
+#summary The overall design at the highest possible level of abstraction.
+
 ==Navigate the design==
 
 || [SoftwareDesign] ||
