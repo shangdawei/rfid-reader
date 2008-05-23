@@ -1,6 +1,4 @@
 #summary The overall design at the highest level of abstraction.
 
-==Navigate the design==
-
 || [SoftwareDesign] ||
 || [HardwareDesign] ||
