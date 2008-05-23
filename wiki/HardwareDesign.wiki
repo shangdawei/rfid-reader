@@ -2,4 +2,4 @@
 
 [http://rfid-reader.googlecode.com/svn/wiki/HardwareDesign.png]
 
-In detail, suggested order: [PowerSupplyDesign Power Supply], [AntennaDesign Antenna Module], [FilterDesign Filtering Module], [TheChip Microchip], [IOMethods I/O methods]
+In detail, suggested order: the [PowerSupplyDesign Power Supply], the [AntennaDesign Antenna Module], the [FilterDesign Filtering Module], the [TheChip Microcontroller], finally, the [IOMethods I/O methods]
