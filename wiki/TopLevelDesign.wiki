@@ -1,4 +1,4 @@
 ==Navigate the design==
 
-|| Software ||
-|| Hardware ||
+|| [SoftwareDesign] ||
+|| [HardwareDesign] ||
