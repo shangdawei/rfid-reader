@@ -159,6 +159,10 @@ INT_VECT  CODE    0x0004        ; interrupt vector location
 PROGRAM   CODE    
 
 START
+	; Switch to internal 500 kHz clock
+	; banksel	OSCCON
+	; movlw	b'00111100'
+	; movwf	OSCCON
 
 	clrf STATUS ; this also sets bank 0
 	clrf PORTA
