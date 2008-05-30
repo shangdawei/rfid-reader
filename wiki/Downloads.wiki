@@ -1,13 +1,6 @@
-#summary One-sentence summary of this page.
+#summary Download page, with explanations.
 
-= Introduction =
+Visit http://code.google.com/p/rfid-reader/downloads/list for a simple download list.
 
-Add your content here.
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+----
+No downloads posted yet.
