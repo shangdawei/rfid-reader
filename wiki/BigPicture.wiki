@@ -1,0 +1,3 @@
+#summary The big picture.
+
+The RFID reader continuously transmits a 125 kHz carrier signal using its antenna. The passive RFID tag, embedded in an id card for example, powers on using the carrier signal. Once powered on, the tag transmits, back to the reader, an FSK encoded signal containing the data stored on the card. The encoded signal is picked up by the reader's antena, filtered, and processed on the embedded microcontroller to extract the tag's unique identity. The identity is matched against the records stored on the reader.
