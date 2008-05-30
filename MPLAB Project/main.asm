@@ -34,7 +34,7 @@
 ;    Capture/Compare Module                                                   *
 ;                                                                             *
 ;******************************************************************************
-;                      a                                                       *
+;                                                                             *
 ;    Notes:                                                                   *
 ;                                                                             *
 ;    This comment relates to MPLAB 7.61...                                    *
@@ -64,7 +64,9 @@
      LIST      p=16F88              ; list directive to define processor
      #INCLUDE <p16f88.inc>          ; processor specific variable definitions
 	
-	extern	SampleEncodedBits
+	errorlevel -302 ;remove message about using proper bank
+
+	extern	WaitForCardAndReadRawData
 
 ;------------------------------------------------------------------------------
 ;
@@ -77,7 +79,7 @@
 ;
 ;------------------------------------------------------------------------------
 
-	__config		_CONFIG1, _CP_OFF & _CCP1_RB0 & _DEBUG_ON & _WRT_PROTECT_OFF & _CPD_OFF & _LVP_OFF & _BODEN_OFF & _MCLR_ON & _PWRTE_OFF & _WDT_OFF & _HS_OSC
+	__config		_CONFIG1, _CP_OFF & _CCP1_RB0 & _DEBUG_ON & _WRT_PROTECT_OFF & _CPD_OFF & _LVP_OFF & _BODEN_OFF & _MCLR_ON & _PWRTE_OFF & _WDT_OFF & _INTRC_IO
 	__config		_CONFIG2, _IESO_OFF & _FCMEN_OFF
 	
 ;------------------------------------------------------------------------------
@@ -124,7 +126,7 @@ DATAEE    CODE  0x2100
 
 RESET     CODE    0x0000            ; processor reset vector
           pagesel START
-          GOTO    START             ; go to beginning of program
+          GOTO    START            ; go to beginning of program
 
 ;------------------------------------------------------------------------------
 ; INTERRUPT SERVICE ROUTINE
@@ -159,14 +161,11 @@ INT_VECT  CODE    0x0004        ; interrupt vector location
 PROGRAM   CODE    
 
 START
-	; Switch to internal 500 kHz clock
-	; banksel	OSCCON
-	; movlw	b'00111100'
-	; movwf	OSCCON
+	; Switch to internal 8 MHz clock
+	banksel	OSCCON
+	movlw	b'01111100'
+	movwf	OSCCON
 
-	clrf STATUS ; this also sets bank 0
-	clrf PORTA
-
-	call SampleEncodedBits
+	call 	WaitForCardAndReadRawData
 
 	end
