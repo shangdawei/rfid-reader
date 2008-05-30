@@ -1,4 +1,5 @@
 	#include <p16f88.inc>
+	errorlevel	-302
 
 LedDriver		code
 
