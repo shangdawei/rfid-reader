@@ -1,11 +1,10 @@
 #summary Discussion of the top level design and schematic portions of the reader.
-
+----
 ===RFID Reader Basics===
 
 The RFID reader continuously transmits a 125 kHz carrier signal using its antenna. The passive RFID tag, embedded in an id card for example, powers on from the carrier signal. Once powered on, the tag transmits, back to the reader, an FSK encoded signal containing the data stored on the card. The FSK signal is a 125 kHz carrier, with 12.5 kHz as the mark frequency, and a 15.625 kHz as the space frequency. The encoded signal is picked up by the reader's antenna, filtered, and processed on the embedded microcontroller to extract the tag's unique identity. At this point the identity can be matched against the records stored on the reader.
 
-
-
+----
 ===Top Level Design===
 
 From the functional description we can extract the basic tasks that a reader must perform:
@@ -18,7 +17,7 @@ From the functional description we can extract the basic tasks that a reader mus
 [http://rfid-reader.googlecode.com/svn/wiki/images/TopLevelDesign.png]
 
 
-
+----
 ===Schematic Diagram===
 
 Let's start peeling off the layers of abstraction.
@@ -28,7 +27,7 @@ Following is our schematic implementation of the proposed top level design. Noti
 [http://rfid-reader.googlecode.com/svn/wiki/images/Schematic.png http://rfid-reader.googlecode.com/svn/wiki/images/SchematicThumbnail.png]
 
 
-
+----
 ===Clock Generator===
 
 The clock generator serves a single purpose. It generates a low level 125 kHz square wave for use by the transmitting circuit within the antenna module. 
@@ -36,7 +35,7 @@ The clock generator serves a single purpose. It generates a low level 125 kHz sq
 Note that the Microcontroller does not need a clock source as it is using the internal clock of the chip.
 
 
-
+----
 ===Antenna Module===
 
 The antenna module takes a 125 kHz square wave input, buffers it, using three shunted inverting gates, and converts it into a 125 kHz sinusoidal wave using the RLC circuit immediately following the buffers. The resulting wave is amplified, using a push pull amplifier, forming the carrier signal, and fed into an antenna that transmits the carrier continuously toward any RFID tag position above it. 
@@ -45,6 +44,8 @@ The same antenna is used to capture the FSK encoded waveform returning from the 
 
 _Note that this is the only stage requiring a 12V supply_
 
+
+----
 ===Filtering Module===
 
 The filtering module's main purpose is to filter out the carrier signal and any noise that was picked up by the antenna.
@@ -56,7 +57,7 @@ From the previous stage we still have some low frequency and traces of high freq
 _Refer to the Microchip RFID Guide for some illustrations of this process._
 
 
-
+----
 ===Microcontroller===
 
 We use a PIC 16F88 chip as the microcontroller. 
