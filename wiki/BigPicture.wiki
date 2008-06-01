@@ -1,3 +1,29 @@
 #summary The big picture.
 
-The RFID reader continuously transmits a 125 kHz carrier signal using its antenna. The passive RFID tag, embedded in an id card for example, powers on using the carrier signal. Once powered on, the tag transmits, back to the reader, an FSK encoded signal containing the data stored on the card. The encoded signal is picked up by the reader's antena, filtered, and processed on the embedded microcontroller to extract the tag's unique identity. The identity is matched against the records stored on the reader.
+===RFID Reader Basics===
+
+The RFID reader continuously transmits a 125 kHz carrier signal using its antenna. The passive RFID tag, embedded in an id card for example, powers on from the carrier signal. Once powered on, the tag transmits, back to the reader, an FSK encoded signal containing the data stored on the card. The FSK signal is a 125 kHz carrier, with 12.5 kHz as the mark frequency, and a 15.625 kHz as the space frequency. The encoded signal is picked up by the reader's antenna, filtered, and processed on the embedded microcontroller to extract the tag's unique identity. At this point the identity can be matched against the records stored on the reader.
+
+
+
+===Top Level Design===
+
+From the functional description we can extract the basic tasks that a reader must perform:
+
+ * Continuously transmit a 125 kHz sinusoidal signal using the antenna
+ * Receive and filter the signal returning from the tag
+ * Extract the digital data from the processed signal
+ * Authenticate the tag using stored records
+
+[http://rfid-reader.googlecode.com/svn/wiki/images/TopLevelDesign.png]
+
+
+
+===Schematic Diagram===
+
+Let’s start peeling off the layers of abstraction.
+
+Following is our schematic implementation of the proposed top level design. Notice that every block on the schematic corresponds to a block in the top level design.
+
+[http://rfid-reader.googlecode.com/svn/wiki/images/SchematicThumbnail.png]
+
