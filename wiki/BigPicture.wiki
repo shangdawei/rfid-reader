@@ -26,3 +26,4 @@ Let's start peeling off the layers of abstraction.
 Following is our schematic implementation of the proposed top level design. Notice that every block on the schematic corresponds to a block in the top level design.
 
 [http://rfid-reader.googlecode.com/svn/wiki/images/SchematicThumbnail.png]
+[SchematicView \[Click for a larger view\]]
