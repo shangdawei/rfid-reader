@@ -1,13 +1,19 @@
 	#include	<p16f88.inc>
 
 SampleStorage	idata	0x110
- SampledBits	res		.96
+ SampledBits		res		.95
+ LastTimerValue	res		.1
 
 
 
+PeriodError	equ		.4
 StoreBit		macro	bitNumber
 	local HoldForHigh
+	local _HoldForLow
 	local HoldForLow
+	local CheckForSpaceFreq
+	local BitProcessed
+	local SkipPeriod
 													errorlevel	-207
 	;------------------------------------------------------------------------------
 	; we are at 8 MHz
@@ -49,25 +55,76 @@ StoreBit		macro	bitNumber
 		;		64 us expected period + 2 us edge error = 66 us * .5 us per inst = 132
 		; At 12.5k:
 		;	Min timer value:
-		;		80 - 2 = 78 us * .5 us per inst = 156
+		;		80 - 2 = 78 us * .5 us per inst = 156 
 		;	Max timer value:
 		;		80 + 2 = 82 us * .5 us per inst = 164
+		;	Experimental: 156, 123, 135, 150
 		; We have 12 us beween 15.625k max and 12.5k min, 
 		; We can use the timer value of 132 + (156-132)/2 = 144,
 		; as the cut off value. Anything less is 15.625k, anything more is considered 12.5k.
 		;
+
 		; Select the correct bank for indirect addressing
 		bsf		STATUS, IRP
-		; If timer value <= 144
-		addlw 	.255 - .144
-		; If there was no carry
-		btfsc	STATUS, C
-		 ; - Store bit
-		 bsf		INDF, bitNumber
-		; - or keep low by doing nothing
+		; Backup the timer value
+		movwf	LastTimerValue
+		
+		; Also backup to EEPROM
+		
+
+
+		addlw 	.255 - (.132 + PeriodError)
+		btfsc	STATUS, C		
+		 ; timer value > (132 + err)
+		 goto	CheckForSpaceFreq	
+		; timer value <= (132 + err)
+		
+		; restore timer value
+		movfw	LastTimerValue
+
+		addlw	.255 - (.124 - PeriodError)
+		btfss	STATUS, C
+		 ; timer value <= (124 - err)
+		 goto	CheckForSpaceFreq
+		; (124 - err) < timer value <= (132 + err)
+		; Store bit as low for "space" frequency in FSK
+		bcf		INDF, bitNumber
+
+		goto		BitProcessed
+		
+	CheckForSpaceFreq
+		;	restore timer value
+		movfw	LastTimerValue
+
+		addlw 	.255 - (.164 + PeriodError)
+		btfsc	STATUS, C		
+		 ; timer value > (164 + err)
+		 goto	SkipPeriod	
+		; timer value <= (164 + err)
+		
+		; restore timer value
+		movfw	LastTimerValue
+
+		addlw	.255 - (.156 - PeriodError)
+		btfss	STATUS, C
+		 ; timer value <= (156 - err)
+		 goto	SkipPeriod
+		; (156 - err) < timer value <= (164 + err)
+		; Store bit as high for "mark" frequency in FSK
+		bsf		INDF, bitNumber
+
+		goto		BitProcessed
+	
+	SkipPeriod
+		banksel	CMCON
+	_HoldForLow
+		btfsc	CMCON, 7
+		 goto	_HoldForLow
+		goto		HoldForHigh
 													errorlevel 	-302
 		; Now hold untill the signal is low, 
 		; so we can safely hold for high at the next bit when this macro is cascaded
+	BitProcessed
 		banksel	CMCON
 	HoldForLow
 		btfsc	CMCON, 7
@@ -129,9 +186,9 @@ StoreByte
 	StoreBit 	1
 	fill		(nop), 7
 	StoreBit 	0
-	; If  - no more samples can be stored, FSR >= 0x6F
+	; If  - no more samples can be stored, FSR >= 0x6E
 	movfw	FSR
-	addlw	.255 - 0x6F + .1
+	addlw	.255 - 0x6E + .1
 	btfsc	STATUS, C
 	 goto	SampleMemoryFilled
 	; else - increment the byte pointer

@@ -33,7 +33,7 @@ namespace BitSampleProcessor
             this.selectButton = new System.Windows.Forms.Button();
             this.processButton = new System.Windows.Forms.Button();
             this.closeButton = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -61,11 +61,11 @@ namespace BitSampleProcessor
             // processButton
             // 
             this.processButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.processButton.Location = new System.Drawing.Point(296, 61);
+            this.processButton.Location = new System.Drawing.Point(225, 37);
             this.processButton.Name = "processButton";
-            this.processButton.Size = new System.Drawing.Size(75, 23);
+            this.processButton.Size = new System.Drawing.Size(146, 23);
             this.processButton.TabIndex = 2;
-            this.processButton.Text = "Process";
+            this.processButton.Text = "Process and Open";
             this.processButton.UseVisualStyleBackColor = true;
             this.processButton.Click += new System.EventHandler(this.processButton_Click);
             // 
@@ -73,7 +73,7 @@ namespace BitSampleProcessor
             // 
             this.closeButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.closeButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.closeButton.Location = new System.Drawing.Point(296, 159);
+            this.closeButton.Location = new System.Drawing.Point(296, 94);
             this.closeButton.Name = "closeButton";
             this.closeButton.Size = new System.Drawing.Size(75, 23);
             this.closeButton.TabIndex = 3;
@@ -81,26 +81,27 @@ namespace BitSampleProcessor
             this.closeButton.UseVisualStyleBackColor = true;
             this.closeButton.Click += new System.EventHandler(this.closeButton_Click);
             // 
-            // button1
+            // label2
             // 
-            this.button1.Location = new System.Drawing.Point(296, 91);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 4;
-            this.button1.Text = "Open";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_1);
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.label2.Location = new System.Drawing.Point(13, 38);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(206, 22);
+            this.label2.TabIndex = 0;
+            this.label2.Text = "File not processed yet";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.closeButton;
-            this.ClientSize = new System.Drawing.Size(383, 194);
-            this.Controls.Add(this.button1);
+            this.ClientSize = new System.Drawing.Size(383, 129);
             this.Controls.Add(this.closeButton);
             this.Controls.Add(this.processButton);
             this.Controls.Add(this.selectButton);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Name = "MainForm";
             this.Text = "Sample Processor";
@@ -115,7 +116,7 @@ namespace BitSampleProcessor
         private System.Windows.Forms.Button selectButton;
         private System.Windows.Forms.Button processButton;
         private System.Windows.Forms.Button closeButton;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label2;
     }
 }
 
