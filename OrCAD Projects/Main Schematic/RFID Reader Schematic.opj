@@ -103,24 +103,19 @@
   (GlobalState
     (FileView
       (Path "Design Resources")
-      (Path "Design Resources"
-         "D:\Projects\Electronics\RFID Reader\OrCAD Projects\Main Schematic\rfid reader schematic.dsn")
-      (Path "Design Resources"
-         "D:\Projects\Electronics\RFID Reader\OrCAD Projects\Main Schematic\rfid reader schematic.dsn"
-         "SCHEMATIC1")
       (Path "Design Resources" "Library"))
     (HierarchyView)
     (Doc
       (Type "COrCapturePMDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -1 -1 0 279 0 692"))
+        (Placement "44 0 1 -1 -1 -8 -28 0 279 0 692"))
       (Tab 0))
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 2 3 -1 -1 -8 -28 -65 1347 -4 1054")
+        (Placement "44 0 1 -1 -1 -8 -28 -2 1410 0 1058")
         (Scroll "0 0")
-        (Zoom "47")
+        (Zoom "71")
         (Occurrence "/"))
       (Path
          "D:\PROJECTS\ELECTRONICS\RFID READER\ORCAD PROJECTS\MAIN SCHEMATIC\RFID READER SCHEMATIC.DSN")
