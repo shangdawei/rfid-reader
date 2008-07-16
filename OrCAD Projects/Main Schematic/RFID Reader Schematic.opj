@@ -113,9 +113,9 @@
     (Doc
       (Type "COrSchematicDoc")
       (Frame
-        (Placement "44 0 1 -1 -1 -8 -28 -2 1410 0 1058")
+        (Placement "44 2 3 -1 -1 -8 -28 -2 1410 0 1058")
         (Scroll "0 0")
-        (Zoom "71")
+        (Zoom "79")
         (Occurrence "/"))
       (Path
          "D:\PROJECTS\ELECTRONICS\RFID READER\ORCAD PROJECTS\MAIN SCHEMATIC\RFID READER SCHEMATIC.DSN")
