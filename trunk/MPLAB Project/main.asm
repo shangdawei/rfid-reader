@@ -11,7 +11,7 @@
 ;                                                                             *
 ;******************************************************************************
 ;                                                                             *
-;    Filename:         xxx.asm                                                *
+;    Filename:         main.asm                                                *
 ;    Date:                                                                    *
 ;    File Version:                                                            *
 ;                                                                             *
@@ -66,7 +66,7 @@
 	
 	errorlevel -302 ;remove message about using proper bank
 
-	extern	WaitForCardAndReadRawData
+	extern	WaitForTagAndReadRawData
 
 ;------------------------------------------------------------------------------
 ;
@@ -166,6 +166,6 @@ START
 	movlw	b'01111100'
 	movwf	OSCCON
 
-	call 	WaitForCardAndReadRawData
+	call 	WaitForTagAndReadRawData
 
 	end
