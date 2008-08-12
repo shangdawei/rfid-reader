@@ -1,9 +1,9 @@
 	#include	<p16f88.inc>
 
+
 SampleStorage	idata	0x110
  SampledBits		res		.95
  LastTimerValue	res		.1
-
 
 
 PeriodError	equ		.4
@@ -68,9 +68,6 @@ StoreBit		macro	bitNumber
 		bsf		STATUS, IRP
 		; Backup the timer value
 		movwf	LastTimerValue
-		
-		; Also backup to EEPROM
-		
 
 
 		addlw 	.255 - (.132 + PeriodError)

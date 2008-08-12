@@ -41,9 +41,9 @@ file_002=no
 file_003=no
 file_004=no
 [FILE_INFO]
-file_000=main.asm
-file_001=Sampler.asm
-file_002=LedDriver.asm
+file_000=TagSampler.asm
+file_001=LedDriver.asm
+file_002=main.asm
 file_003=C:\Program Files\Microchip\MPASM Suite\P16F88.INC
 file_004=C:\Program Files\Microchip\MPASM Suite\LKR\16F88.lkr
 [SUITE_INFO]
