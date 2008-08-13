@@ -1,4 +1,6 @@
 	#include <p16f88.inc>
+	extern	TurnLedOff
+	extern	TurnLedOn
 
 TagSamplerData idata
 Flags	res	.1
@@ -12,7 +14,7 @@ WaitForComparatorLowToHighEdge	macro
 	local HoldForLow
 	local HoldForHigh
 											
-	banksel	CMCON
+		banksel	CMCON
 											errorlevel	-207, -302
 	HoldForLow
 		btfsc	CMCON, 7
@@ -50,6 +52,7 @@ GetBit
 	addlw	.255 - .157
 	bc		SetBitHigh	; timer value > 157
 	bcf		Flags, Bit	; timer value <= 157
+	nop		; pad the timing
 	goto		ReturnFromGetBit
 SetBitHigh
 	bsf		Flags, Bit	
@@ -61,12 +64,22 @@ ReturnFromGetBit
 ;******************************************************************************
 
 HoldForLowBit
+	
+	call 	GetBit
+	btfsc	Flags, Bit
+	 goto	HoldForLowBit
+
 	return
 
 
 ;******************************************************************************
 
 HoldForHighBit
+	
+	call 	GetBit
+	btfss	Flags, Bit
+	 goto	HoldForHighBit
+
 	return
 	
 
@@ -88,7 +101,6 @@ WaitForTagAndReadRawData
 	;-------------------------------------------------------------------------
 	; Set up
 	;
-
 													errorlevel -302
 	; Set up the comparator for independent mode
 	; Using two external pins, RA1 and RA2
@@ -103,8 +115,20 @@ WaitForTagAndReadRawData
 	; 	- assign postscaler to WDT
 	bcf		INTCON, 5
 	bcf		OPTION_REG, 5
-	bsf		OPTION_REG, 3
-	
+	bsf		OPTION_REG, 3	
+
+	;-------------------------------------------------------------------------
+	; Logic
+	;
+
+TestGetBit
+	call		GetBit
+	btfsc	Flags, Bit
+	 call	TurnLedOff
+	btfss	Flags, Bit
+	 call	TurnLedOn
+	goto		TestGetBit
+
 	return
 
 end
