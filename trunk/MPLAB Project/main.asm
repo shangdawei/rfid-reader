@@ -142,14 +142,15 @@ INT_VECT  CODE    0x0004        ; interrupt vector location
 	MOVF    PCLATH,W          ; move pclath register into W register
 	MOVWF   PCLATH_TEMP       ; save off contents of PCLATH register
 	
-	btfsc	INTCON, TMR2IF
+	btfsc	PIE1, TMR2IF
 	 goto	TMR2_Interrupt
 
 	goto RestoreContext
 
 TMR2_Interrupt
 	call		StoreBit
-	bcf		INTCON, TMR2IF
+	bcf		PIE1, TMR2IF
+
 		
 RestoreContext
 	; Restore context before returning from interrupt
