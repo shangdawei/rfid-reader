@@ -66,6 +66,7 @@
 	
 	errorlevel -302 ;remove message about using proper bank
 
+	extern 	StoreBit
 	extern	WaitForTagAndReadRawData
 
 ;------------------------------------------------------------------------------
@@ -134,25 +135,31 @@ RESET     CODE    0x0000            ; processor reset vector
 
 INT_VECT  CODE    0x0004        ; interrupt vector location
 
-;         Context saving for ISR
-          MOVWF   W_TEMP            ; save off current W register contents
-          MOVF    STATUS,W          ; move status register into W register
-          MOVWF   STATUS_TEMP       ; save off contents of STATUS register
-          MOVF    PCLATH,W          ; move pclath register into W register
-          MOVWF   PCLATH_TEMP       ; save off contents of PCLATH register
+	; Context saving for ISR
+	MOVWF   W_TEMP            ; save off current W register contents
+	MOVF    STATUS,W          ; move status register into W register
+	MOVWF   STATUS_TEMP       ; save off contents of STATUS register
+	MOVF    PCLATH,W          ; move pclath register into W register
+	MOVWF   PCLATH_TEMP       ; save off contents of PCLATH register
+	
+	btfsc	INTCON, TMR2IF
+	 goto	TMR2_Interrupt
 
-;------------------------------------------------------------------------------
-; USER INTERRUPT SERVICE ROUTINE GOES HERE
-;------------------------------------------------------------------------------
+	goto RestoreContext
 
-;         Restore context before returning from interrupt
-          MOVF    PCLATH_TEMP,W     ; retrieve copy of PCLATH register
-          MOVWF   PCLATH            ; restore pre-isr PCLATH register contents
-          MOVF    STATUS_TEMP,W     ; retrieve copy of STATUS register
-          MOVWF   STATUS            ; restore pre-isr STATUS register contents
-          SWAPF   W_TEMP,F
-          SWAPF   W_TEMP,W          ; restore pre-isr W register contents
-          RETFIE                    ; return from interrupt
+TMR2_Interrupt
+	call		StoreBit
+	bcf		INTCON, TMR2IF
+		
+RestoreContext
+	; Restore context before returning from interrupt
+	MOVF    PCLATH_TEMP,W     ; retrieve copy of PCLATH register
+	MOVWF   PCLATH            ; restore pre-isr PCLATH register contents
+	MOVF    STATUS_TEMP,W     ; retrieve copy of STATUS register
+	MOVWF   STATUS            ; restore pre-isr STATUS register contents
+	SWAPF   W_TEMP,F
+	SWAPF   W_TEMP,W          ; restore pre-isr W register contents
+	RETFIE                    ; return from interrupt
 
 ;------------------------------------------------------------------------------
 ; MAIN PROGRAM
