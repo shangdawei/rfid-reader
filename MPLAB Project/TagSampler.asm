@@ -79,8 +79,16 @@ HoldForHighBit
 	call 	GetBit
 	btfss	STATUS, C
 	 goto	HoldForHighBit
+	; from experiment 168 cycles from edge
 
-	; wait half bit time to put next call at 200 us after edge
+d1	db	0
+	;240 cycles
+	movlw	0x4F
+	movwf	d1
+Delay_0
+	decfsz	d1, f
+	goto	Delay_0
+	goto	$+1
 
 	return
 
@@ -157,14 +165,15 @@ WaitForTagAndReadRawData
 	call 	SyncWithFirstBitOfTag
 
 	banksel	PR2
-	movlw	.200
-	movwf	PR2			; will cause an interrupt in 800 cycles
-	bsf		INTCON, GIE	; enable interrupts
+	movlw	.198
+	movwf	PR2			; will cause an interrupt every 800 cycles
+	bsf		INTCON, PEIE	; enable interrupts
+	bsf		INTCON, GIE
 	bsf		PIE1, TMR2IE 	; enable timer interrupt	
 
 	banksel	T2CON
-	movlw	b'00010100'
-	movwf	T2CON		; turn on the timer, 1:4 postscaler
+	movlw	b'00000101'
+	movwf	T2CON		; turn on the timer, 1:4 prescaler
 
 WaitForInterrupt
 	goto WaitForInterrupt
