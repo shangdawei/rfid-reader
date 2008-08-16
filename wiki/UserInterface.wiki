@@ -1,0 +1,45 @@
+#summary One-sentence summary of this page.
+#labels Phase-Requirements
+
+=User Interface Specification=
+
+
+===Turning the reader On/Off:===
+
+  * Turning the reader On: 
+    # User turns the reader on using a power switch
+    # The reader goes into normal operation
+  * The reader can be abruptly turned off at any point, by any means
+
+
+===Normal operation:===
+
+  # User may take any of the following actions:
+    * User scans a tag by placing it over the antenna:
+      # If the tag is authorized, the green indicator blinks and a tone is sounded, once
+      # If the tag is not authorized, the red indicator blinks and a tone is sounded, twice
+    * User presses the "Add/Remove Tag" button:
+      # The reader goes into the "Administrative mode"
+  # The reader goes back to "Normal operation"
+
+
+===Administrative mode:===
+
+  # Continuously blink the green indicator
+  # User may take any of the following actions:
+    * For any action:
+      # Stop blinking the the green indicator and leave it in the off state
+    * User scans a tag by placing it over the antenna:
+      * If the tag is not authorized:
+        # The tag is added to the list of authorized tags
+        # The green indicator blinks and a tone is sounded, twice
+      * If the tag is authorized:
+        # The tag is removed ftom the list of authorized tags
+        # The red indicator blinks and a tone is sounded, twice
+    * The user presses the "Add/Remove Tag" button:
+      # Go back to "Normal operation"
+
+===Resseting the reader:===
+
+  * User holds the "Add/Remove Tag" button while the reader is being turned on
+    # Reset the reader to factory defaults, clearing the list of authorized tags
