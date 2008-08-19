@@ -6,7 +6,10 @@ _BitCounter	res	.1
 _ByteCounter	res	.1
 _STATUS_TEMP	res	.1
 _TagData		res	.4
+_Temp		res	.1
 
+_EvenParityBit	equ	.0
+_OddParityBit	equ	.1
 
 
 TagSampleProcessor code
@@ -30,11 +33,6 @@ ClearTagData
 ;******************************************************************************
 
 RotateRawDataBufferAddrToHeader
-
-	movlw	.8
-	movwf	_BitCounter
-	clrf		_ByteCounter
-	clrf		_STATUS_TEMP
 
 	bsf		STATUS, IRP ; Select the correct bank for indirect addressing
 	banksel	RawDataBufferAddr
@@ -139,13 +137,13 @@ MachesterDecodeBit	macro	ByteNumber, BitNumber
 
 BitIsOne
 	btfsc	RawDataBufferAddr + ByteNumber, BitNumber - .1
-	 goto	ManchesterDecodeFailed
+	 goto	TagDataDecodeFailed
 	bsf		STATUS, C
 	goto		SaveBit
 
 BitIsZero
 	btfss	RawDataBufferAddr + ByteNumber, BitNumber - .1
-	 goto	ManchesterDecodeFailed
+	 goto	TagDataDecodeFailed
 	bcf		STATUS, C
 
 SaveBit
@@ -167,7 +165,7 @@ MachesterDecodeByte	macro	ByteNumber
 	endm
 
 
-MachesterDecodeTagData
+DecodeTagData
 
 	call 	ClearTagData
 
@@ -184,10 +182,30 @@ MachesterDecodeTagData
 	MachesterDecodeByte	.11
 	errorLevel	+302
 
+	; extract parity
+	rrf		_TagData, f
+	rrf		_TagData + .1, f
+	rrf		_TagData + .2, f
+	rrf		_TagData + .3, f
+	btfsc	STATUS, C
+	 bsf		_TagData, .1
+
+	; move parity to the last byte in TagData
+	movfw	_TagData
+	movwf	_Temp
+	movfw	_TagData + .1
+	movwf	_TagData
+	movfw	_TagData + .2
+	movwf	_TagData + .1
+	movfw	_TagData + .3
+	movwf	_TagData + .2
+	movfw	_Temp
+	movwf	_TagData + .3
+
 	bsf		STATUS, C
 	return
 
-ManchesterDecodeFailed
+TagDataDecodeFailed
 	bcf		STATUS, C
 	return
 
@@ -195,9 +213,94 @@ ManchesterDecodeFailed
 ;******************************************************************************
 
 CheckTagDataParity
+	
+	; calculate even parity
+	clrf		_Temp
 
-	nop
- 
+	btfsc	_TagData + .0, .7
+	 incf	_Temp,f
+	btfsc	_TagData + .0, .6
+	 incf	_Temp,f
+	btfsc	_TagData + .0, .5
+	 incf	_Temp,f
+	btfsc	_TagData + .0, .4
+	 incf	_Temp,f
+	btfsc	_TagData + .0, .3
+	 incf	_Temp,f
+	btfsc	_TagData + .0, .2
+	 incf	_Temp,f
+	btfsc	_TagData + .0, .1
+	 incf	_Temp,f
+	btfsc	_TagData + .0, .0
+	 incf	_Temp,f
+	btfsc	_TagData + .1, .7
+	 incf	_Temp,f
+	btfsc	_TagData + .1, .6
+	 incf	_Temp,f
+	btfsc	_TagData + .1, .5
+	 incf	_Temp,f
+	btfsc	_TagData + .1, .4
+	 incf	_Temp,f
+
+	btfsc	_Temp, .0
+	 goto	CalcedEvenParityIsOne
+
+CalcedEvenParityIsZero
+	btfsc	_TagData + .3, _EvenParityBit
+	 goto	WrongParity
+	goto		CalcOddParity
+
+CalcedEvenParityIsOne
+	btfss	_TagData + .3, _EvenParityBit
+	 goto	WrongParity	
+
+CalcOddParity
+	clrf		_Temp
+
+	btfsc	_TagData + .1, .3
+	 incf	_Temp,f
+	btfsc	_TagData + .1, .2
+	 incf	_Temp,f
+	btfsc	_TagData + .1, .1
+	 incf	_Temp,f
+	btfsc	_TagData + .1, .0
+	 incf	_Temp,f	
+	btfsc	_TagData + .2, .7
+	 incf	_Temp,f
+	btfsc	_TagData + .2, .6
+	 incf	_Temp,f
+	btfsc	_TagData + .2, .5
+	 incf	_Temp,f
+	btfsc	_TagData + .2, .4
+	 incf	_Temp,f
+	btfsc	_TagData + .2, .3
+	 incf	_Temp,f
+	btfsc	_TagData + .2, .2
+	 incf	_Temp,f
+	btfsc	_TagData + .2, .1
+	 incf	_Temp,f
+	btfsc	_TagData + .2, .0
+	 incf	_Temp,f
+
+	btfss	_Temp, .0
+	 goto	CalcedOddParityIsOne
+
+CalcedOddParityIsZero
+	btfsc	_TagData + .3, _OddParityBit
+	 goto	WrongParity
+	goto		CorrectParity
+
+CalcedOddParityIsOne
+	btfss	_TagData + .3, _OddParityBit
+	 goto	WrongParity
+	goto		CorrectParity
+
+WrongParity
+	bcf		STATUS, C	
+	return
+
+CorrectParity
+	bsf		STATUS, C
 	return
 
 
@@ -208,20 +311,31 @@ ExtractTagDataFromRawData
 
 	call		ClearTagData
 
+	movlw	.8
+	movwf	_BitCounter
+	clrf		_ByteCounter
+	clrf		_STATUS_TEMP
+	clrf		_Temp
+
+RotateToNextHeaderInstance
 	call		RotateRawDataBufferAddrToHeader
 	bnc		NoValidTagFound
 
-	call		MachesterDecodeTagData
-	bnc		NoValidTagFound
+	call		DecodeTagData
+	bnc		RotateToNextHeaderInstance
 
 	call		CheckTagDataParity
-	bnc		NoValidTagFound
+	bnc		RotateToNextHeaderInstance
+
+	goto		ValidTagFound
 
 NoValidTagFound
 	call 	ClearTagData
+	bcf		STATUS, C
 	return
 
 ValidTagFound	
+	bsf		STATUS, C
 	return
 	
 	end
