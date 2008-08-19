@@ -1,13 +1,13 @@
 	#include <p16f88.inc>
+	#include <RfidReader.inc>
 	extern	TurnLedOn
 	extern	TurnLedOff
 	
 	errorlevel	-302
 
-TagDataBuffer idata 0x110 
+DataBuffer idata 0x110 
 BitsLeftInCurrentByte	db	.8	
-BitBuffer  			res 	.94
-LastAddrInBuffer		equ 	0x6F
+RawDataBuffer  		res 	.94
 
 
 TagSamplerCode code
@@ -113,8 +113,8 @@ StoreBit
 	movfw	FSR
 	
 	; check if buffer is full
-	addlw	.255 - LastAddrInBuffer	
-	bc		BufferFull ; If FSR > LastAddrInBuffer
+	addlw	.255 - LastAddrInRawDataBuffer	
+	bc		BufferFull ; If FSR > LastAddrInRawDataBuffer
 	
 	; reinitialize the "bits left" value, since we are at the next, empty byte
 	movlw	.8
@@ -153,8 +153,8 @@ WaitForTagAndReadRawData
 
 	; Select the correct bank for indirect addressing
 	bsf		STATUS, IRP
-	; Initialize the FSR to point to TagData for indirect addressing
-	movlw	BitBuffer
+	; Initialize the FSR to point to RawDataBuffer for indirect addressing
+	movlw	RawDataBuffer
 	movwf	FSR
 
 
