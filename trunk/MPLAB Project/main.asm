@@ -68,6 +68,7 @@
 
 	extern 	StoreBit
 	extern	WaitForTagAndReadRawData
+	extern	ExtractTagDataFromRawData
 
 ;------------------------------------------------------------------------------
 ;
@@ -104,22 +105,6 @@ INT_VAR        UDATA_SHR
 W_TEMP         RES        1    ; w register for context saving (ACCESS)
 STATUS_TEMP    RES        1    ; status used for context saving (ACCESS)
 PCLATH_TEMP    RES        1    ; variable used for context saving
-
-; Example of using GPR Uninitialized Data
-GPR_VAR        UDATA           
-MYVAR1         RES        1    ; User variable placed by linker
-MYVAR2         RES        1    ; User variable placed by linker
-MYVAR3         RES        1    ; User variable placed by linker
-
-;------------------------------------------------------------------------------
-; EEPROM INITIALIZATION
-;
-; The 16F88 has 256 bytes of non-volatile EEPROM, starting at address 0x2100
-; 
-;------------------------------------------------------------------------------
-
-DATAEE    CODE  0x2100
-    DE    "MCHP"          ; Place 'M' 'C' 'H' 'P' at address 0,1,2,3
 
 ;------------------------------------------------------------------------------
 ; RESET VECTOR
@@ -174,6 +159,8 @@ START
 	movlw	b'01111100'
 	movwf	OSCCON
 
-	call 	WaitForTagAndReadRawData
+	;call 	WaitForTagAndReadRawData
+	call		ExtractTagDataFromRawData
+	nop
 
 	end
