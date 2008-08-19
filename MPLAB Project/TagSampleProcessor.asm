@@ -1,13 +1,31 @@
 	#include <p16f88.inc>
 	#include <RfidReader.inc>
 
-Globals		udata_shr 0x070
+TagSampleProcessorVars	udata_shr 0x070
 _BitCounter	res	.1
 _ByteCounter	res	.1
 _STATUS_TEMP	res	.1
-_TagData		res	.7
+_TagData		res	.4
+
+
 
 TagSampleProcessor code
+
+
+;******************************************************************************
+
+ClearTagData
+
+	clrf		_TagData
+	clrf		_TagData + .1
+	clrf		_TagData + .2
+	clrf		_TagData + .3
+	clrf		_TagData + .4
+	clrf		_TagData + .5
+	clrf		_TagData + .6
+
+	return	
+
 
 ;******************************************************************************
 
@@ -110,28 +128,100 @@ TagDataFound
 
 ;******************************************************************************
 
-DecodeTagData
+MachesterDecodeBit	macro	ByteNumber, BitNumber
+	local BitIsOne
+	local BitIsZero
+	local SaveBit
 	
-	nop
+	btfsc	RawDataBufferAddr + ByteNumber, BitNumber
+	 goto	BitIsOne
+	goto		BitIsZero
 
+BitIsOne
+	btfsc	RawDataBufferAddr + ByteNumber, BitNumber - .1
+	 goto	ManchesterDecodeFailed
+	bsf		STATUS, C
+	goto		SaveBit
+
+BitIsZero
+	btfss	RawDataBufferAddr + ByteNumber, BitNumber - .1
+	 goto	ManchesterDecodeFailed
+	bcf		STATUS, C
+
+SaveBit
+	rlf		_TagData + .3, f
+	rlf		_TagData + .2, f
+	rlf		_TagData + .1, f
+	rlf		_TagData, f
+
+	endm
+
+
+MachesterDecodeByte	macro	ByteNumber
+
+	MachesterDecodeBit	ByteNumber, .7	
+	MachesterDecodeBit	ByteNumber, .5
+	MachesterDecodeBit	ByteNumber, .3
+	MachesterDecodeBit	ByteNumber, .1
+	
+	endm
+
+
+MachesterDecodeTagData
+
+	call 	ClearTagData
+
+	banksel	RawDataBufferAddr
+	
+	errorLevel	-302
+	MachesterDecodeBit	.5, .3
+	MachesterDecodeBit	.5, .1
+	MachesterDecodeByte	.6
+	MachesterDecodeByte	.7
+	MachesterDecodeByte	.8
+	MachesterDecodeByte	.9
+	MachesterDecodeByte	.10
+	MachesterDecodeByte	.11
+	errorLevel	+302
+
+	bsf		STATUS, C
 	return
+
+ManchesterDecodeFailed
+	bcf		STATUS, C
+	return
+
+
+;******************************************************************************
+
+CheckTagDataParity
+
+	nop
+ 
+	return
+
 
 ;******************************************************************************
 
 ExtractTagDataFromRawData
 	global	ExtractTagDataFromRawData
 
+	call		ClearTagData
+
 	call		RotateRawDataBufferAddrToHeader
 	bnc		NoValidTagFound
 
-	call		DecodeTagData
+	call		MachesterDecodeTagData
+	bnc		NoValidTagFound
+
+	call		CheckTagDataParity
 	bnc		NoValidTagFound
 
 NoValidTagFound
+	call 	ClearTagData
 	return
 
-ValidTagFound
-	
+ValidTagFound	
 	return
 	
 	end
