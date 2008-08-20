@@ -1,11 +1,14 @@
 	#include <p16f88.inc>
 	#include <RfidReader.inc>
 
+	errorLevel	-302
+
 TagSampleProcessorVars	udata_shr 0x070
 _BitCounter	res	.1
 _ByteCounter	res	.1
 _STATUS_TEMP	res	.1
 _TagData		res	.4
+	global	_TagData
 _Temp		res	.1
 
 _EvenParityBit	equ	.0

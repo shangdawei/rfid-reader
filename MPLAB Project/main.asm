@@ -69,6 +69,9 @@
 	extern 	StoreBit
 	extern	WaitForTagAndReadRawData
 	extern	ExtractTagDataFromRawData
+	extern	ClearTagDb
+	extern	AddTagToDb
+	extern	FindTagInDb
 
 ;------------------------------------------------------------------------------
 ;
@@ -159,8 +162,15 @@ START
 	movlw	b'01111100'
 	movwf	OSCCON
 
+MainLoop
 	;call 	WaitForTagAndReadRawData
-	call		ExtractTagDataFromRawData
-	nop
+	;call		ExtractTagDataFromRawData
+	;call		ClearTagDb
+	call		AddTagToDb
+	call		FindTagInDb
+
+
+	goto		MainLoop
+	
 
 	end
