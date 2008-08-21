@@ -6,10 +6,10 @@
 
 ===Turning the reader On/Off:===
 
-  * Turning the reader On: 
+  * Turning the reader On:
     # User turns the reader on using a power switch
+    # The power led lights up and a tone is sounded
     # The reader goes into normal operation
-
   * The reader can be abruptly turned off at any point, by any means
 
 
