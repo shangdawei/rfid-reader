@@ -1,20 +1,20 @@
 	#include <p16f88.inc>
 	#include <RfidReader.inc>
 	extern	_TagData
+	extern	_Temp
 
 	errorLevel	-302
 
 
 TagDbEepromVars 	org	0x2100
 _NextRecord		de	.1
-_TagDb			de	.252  ; MUST be in multiples of three bytes, _TagData size
 
-_LastAddrInTagDb	equ	0xFC  ; MUST be the last byte of _TagDb
-
+; _LastAddrInTagDb - _TagDb  MUST be divisible by three
+_TagDb			equ	0x01
+_LastAddrInTagDb	equ	0xFC
 
 
 TagDb	code
-
 
 ;******************************************************************************
 
@@ -98,7 +98,19 @@ ClearEepromByte
 FindTagInDb
 	global	FindTagInDb
 
+	; Search only if the db is not empty
 	banksel	EEADR
+	movlw	_NextRecord
+	movwf	EEADR
+	call		ReadEepromByte
+	banksel	EEDATA
+	movfw	EEDATA	; Backup the next record poiter
+	movwf	_Temp
+	movlw	_TagDb	; Is the db empty?
+	xorwf	EEDATA, f
+	bz		NoMatchFound
+
+	; Otherwise search starting with first record
 	movlw	_TagDb
 	movwf	EEADR
 
@@ -143,9 +155,9 @@ MatchThirdByte
 AdvanceToNextRecord
 	banksel	EEADR
 	; If all records in db were tried, give up
-	movlw	_LastAddrInTagDb - .2
+	movfw	_Temp	; Contains the backup of next record pointer
 	xorwf	EEADR, w
-	bz		NoMatchFound
+	bz		NoMatchFound 	; If EEADR == next record pointer
 
 	; If there are more records to try, advance
 	incf		EEADR, f
@@ -172,6 +184,9 @@ MatchFound
 
 AddTagToDb
 	global	AddTagToDb
+
+	call		FindTagInDb
+	bc		RecordAlreadyExists
 
 	; Get the next record pointer in the tag DB
 	banksel	EEADR
@@ -227,6 +242,53 @@ SaveNextRecordPointer
 	movwf	EEADR
 	call		WriteEepromByte
 
+RecordAlreadyExists
+	return
+
+
+;******************************************************************************
+
+RemoveTagFromDb
+	global 	RemoveTagFromDb
+	
+	call		FindTagInDb
+	bnc		TagRemoved
+	; EEADR contains the tag record pointer
+		
+ShiftNextDbByte
+	banksel	EEADR
+
+	movlw	_LastAddrInTagDb - .2
+	xorwf	EEADR, w
+	bz		UpdateNextRecordPointer
+
+	incf		EEADR, f
+	incf		EEADR, f
+	incf		EEADR, f
+	call		ReadEepromByte
+	banksel	EEADR
+	decf		EEADR, f
+	decf		EEADR, f
+	decf		EEADR, f
+	call		WriteEepromByte
+	banksel	EEADR
+	incf		EEADR, f
+
+	goto		ShiftNextDbByte
+
+UpdateNextRecordPointer		
+	; Decrement the next record pointer
+	banksel	EEADR
+	movlw	_NextRecord
+	movwf	EEADR
+	call		ReadEepromByte
+	banksel	EEDATA
+	decf		EEDATA, f
+	decf		EEDATA, f
+	decf		EEDATA, f
+	call		WriteEepromByte
+
+TagRemoved
 	return
 
 	end
