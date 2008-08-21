@@ -9,6 +9,7 @@
   * Turning the reader On: 
     # User turns the reader on using a power switch
     # The reader goes into normal operation
+
   * The reader can be abruptly turned off at any point, by any means
 
 
