@@ -72,6 +72,7 @@
 	extern	ClearTagDb
 	extern	AddTagToDb
 	extern	FindTagInDb
+	extern	RemoveTagFromDb
 
 ;------------------------------------------------------------------------------
 ;
@@ -163,11 +164,11 @@ START
 	movwf	OSCCON
 
 MainLoop
-	;call 	WaitForTagAndReadRawData
+	;call		WaitForTagAndReadRawData
 	;call		ExtractTagDataFromRawData
 	;call		ClearTagDb
-	call		AddTagToDb
-	call		FindTagInDb
+	;call		AddTagToDb
+	;call		RemoveTagFromDb
 
 
 	goto		MainLoop

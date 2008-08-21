@@ -10,6 +10,7 @@ _STATUS_TEMP	res	.1
 _TagData		res	.4
 	global	_TagData
 _Temp		res	.1
+	global	_Temp
 
 _EvenParityBit	equ	.0
 _OddParityBit	equ	.1
