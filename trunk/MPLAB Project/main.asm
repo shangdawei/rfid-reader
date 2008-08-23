@@ -9,7 +9,6 @@
 	errorlevel -302 ;remove message about using proper bank
 
 	extern 	StoreBit
-	extern	CheckLastTagAge
 	extern	UiLogicSetup
 	extern	EnterNormalOperation
 	extern	EnterAdminMode
@@ -30,8 +29,9 @@
 Globals		udata_shr
 Temp1		res		.1	; General purpose temp variables
 Temp2		res		.1
+Temp3		res		.1
 Flags		res		.1	; Status flags for program flow
-	global	Temp1, Temp2, Flags
+	global	Temp1, Temp2, Temp3, Flags
 
 ContextVars	udata_shr
 W_TEMP		res		.1
@@ -65,17 +65,10 @@ INT_VECT  CODE    0x0004
 	banksel	PIE1
 	btfsc	PIE1, TMR2IF
 	 goto	TMR2_Interrupt
-	btfsc	PIE1, TMR1IF
-	 goto	TMR1_Interrupt	
 	btfsc	INTCON, INTF
 	 goto	Button_Interrupt
 	goto 	RestoreContext
 
-TMR1_Interrupt
-	banksel	PIR1
-	bcf		PIR1, TMR1IF
-	call		CheckLastTagAge
-	goto		RestoreContext
 
 TMR2_Interrupt
 	banksel	PIR1
@@ -112,6 +105,8 @@ START
 	banksel	OSCCON
 	movlw	b'01111100'
 	movwf	OSCCON
+
+	clrf		Flags
 
 	call		UiLogicSetup
 	call		EnterNormalOperation
