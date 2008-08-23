@@ -58,6 +58,29 @@ OnAuthorizeTag
 OnDeauthorizeTag
 	return
 
+;******************************************************************************
+
+SendAuthSignal
+	; Send a 10 ms pulse on AuthSignal
+
+	banksel	PORTA
+	bsf		AuthSignal	
+	
+	; Delay 10 ms
+	movlw	0x9F
+	movwf	Temp1
+	movlw	0x10
+	movwf	Temp2
+Delay_0
+	decfsz	Temp1, f
+	goto	$+2
+	decfsz	Temp2, f
+	goto	Delay_0
+	goto	$+1
+
+	bcf		AuthSignal
+
+	return
 
 ;******************************************************************************
 
@@ -113,6 +136,7 @@ NormalOperation
 	goto		TagNotAuthorized
 	
 TagAuthorized
+	call		SendAuthSignal
 	call		OnTagAuthorized
 	goto		NormalOperation
 
