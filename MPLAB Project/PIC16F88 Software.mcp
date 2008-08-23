@@ -32,6 +32,7 @@ file_005=.
 file_006=.
 file_007=.
 file_008=.
+file_009=.
 [GENERATED_FILES]
 file_000=no
 file_001=no
@@ -42,6 +43,7 @@ file_005=no
 file_006=no
 file_007=no
 file_008=no
+file_009=no
 [OTHER_FILES]
 file_000=no
 file_001=no
@@ -52,16 +54,18 @@ file_005=no
 file_006=no
 file_007=no
 file_008=no
+file_009=no
 [FILE_INFO]
 file_000=TagSampler.asm
 file_001=main.asm
 file_002=TagSampleProcessor.asm
 file_003=TagDb.asm
 file_004=UserInterfaceLogic.asm
-file_005=C:\Program Files\Microchip\MPASM Suite\P16F88.INC
-file_006=RfidReader.inc
-file_007=RfidReaderMain.inc
-file_008=C:\Program Files\Microchip\MPASM Suite\LKR\16F88.lkr
+file_005=LedDriver.asm
+file_006=C:\Program Files\Microchip\MPASM Suite\P16F88.INC
+file_007=RfidReader.inc
+file_008=RfidReaderMain.inc
+file_009=C:\Program Files\Microchip\MPASM Suite\LKR\16F88.lkr
 [SUITE_INFO]
 suite_guid={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}
 suite_state=
