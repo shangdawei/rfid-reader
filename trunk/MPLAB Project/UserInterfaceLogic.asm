@@ -27,6 +27,11 @@ SpeakerTris	equ	TRISA
 SpeakerPin	equ	.0
 #define	Speaker	SpeakerPort, SpeakerPin
 
+AuthSignalPort equ	PORTA
+AuthSignalTris	equ	TRISA
+AuthSignalPin	equ	.3
+#define	AuthSignal	AuthSignalPort, AuthSignalPin
+
 
 UserInterfaceLogic	code
 
@@ -63,6 +68,7 @@ UiSetup
 	bcf		RedLedTris, RedLedPin
 	bcf		GreenLedTris, GreenLedPin
 	bcf		SpeakerTris, SpeakerPin
+	bcf		AuthSignalTris, AuthSignalPin
 	clrf		ANSEL
 	
 	btfsc	InAdminMode
@@ -73,6 +79,7 @@ UiSetup
 	bcf		RedLed
 	bcf		GreenLed
 	bcf		Speaker
+	bcf		AuthSignal
 	goto		SetupButtonInterrupt
 
 SetupForAdminMode
@@ -80,6 +87,7 @@ SetupForAdminMode
 	bsf		RedLed
 	bsf		GreenLed
 	bcf		Speaker
+	bcf		AuthSignal
 
 SetupButtonInterrupt
 	bsf		INTCON, INTE	; INT0IE bit

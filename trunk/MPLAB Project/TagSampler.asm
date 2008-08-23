@@ -1,7 +1,5 @@
 	#include <p16f88.inc>
 	#include <RfidReader.inc>
-	extern	TurnLedOn
-	extern	TurnLedOff
 	
 	errorlevel	-302
 
@@ -97,10 +95,6 @@ Delay_0
 
 StoreBit
 	global	StoreBit
-	
-	; debug pulse, should see it every 400 us (bit time) sharp!
-	call		TurnLedOn
-	call		TurnLedOff
 
 	call 	GetBit
 	rlf		INDF, f
