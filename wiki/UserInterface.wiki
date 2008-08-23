@@ -26,10 +26,10 @@
 
 ===Administrative mode:===
 
-  # Continuously blink the green indicator
+  # Light up both the green and the red indicators
   # User may take any of the following actions:
     * For any action:
-      # Stop blinking the the green indicator and leave it in the off state
+      # Turn off both the green and the red indicators
     * User scans a tag by placing it over the antenna:
       * If the tag is not authorized:
         # The tag is added to the list of authorized tags
