@@ -61,13 +61,13 @@ UiLogicSetup
 	; Setup button interrupt, used to switch modes
 	bsf		INTCON, INTE	; INT0IE bit
 
-	; Setup TMR1 interrupt, used to clear the recently scanned tag
-	banksel	PIE1
-	bsf		PIE1, TMR1IE
-
-	banksel	T1CON
-	movlw	b'00110000'	; Initially off
-	movwf	T1CON
+;	; Setup TMR1 interrupt, used to clear the recently scanned tag
+;	banksel	PIE1
+;	bsf		PIE1, TMR1IE
+;
+;	banksel	T1CON
+;	movlw	b'00110000'	; Initially off
+;	movwf	T1CON
 	
 	; Enable interrupts
 	bsf		INTCON, PEIE
