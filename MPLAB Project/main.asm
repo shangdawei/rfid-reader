@@ -67,12 +67,8 @@
 	errorlevel -302 ;remove message about using proper bank
 
 	extern 	StoreBit
-	extern	WaitForTagAndReadRawData
-	extern	ExtractTagDataFromRawData
-	extern	ClearTagDb
-	extern	AddTagToDb
-	extern	FindTagInDb
-	extern	RemoveTagFromDb
+	extern	EnterNormalOperation
+	extern	EnterAdminMode
 
 ;------------------------------------------------------------------------------
 ;
@@ -109,6 +105,8 @@ INT_VAR        UDATA_SHR
 W_TEMP         RES        1    ; w register for context saving (ACCESS)
 STATUS_TEMP    RES        1    ; status used for context saving (ACCESS)
 PCLATH_TEMP    RES        1    ; variable used for context saving
+Flags		res		.1
+	global	Flags
 
 ;------------------------------------------------------------------------------
 ; RESET VECTOR
@@ -163,15 +161,8 @@ START
 	movlw	b'01111100'
 	movwf	OSCCON
 
-MainLoop
-	;call		WaitForTagAndReadRawData
-	;call		ExtractTagDataFromRawData
-	;call		ClearTagDb
-	;call		AddTagToDb
-	;call		RemoveTagFromDb
+	call		EnterNormalOperation
 
-
-	goto		MainLoop
+	goto		START
 	
-
 	end
