@@ -5,6 +5,7 @@
 	extern	FindTagInDb
 	extern	AddTagToDb
 	extern	RemoveTagFromDb
+	extern	_TagData
 
 
 ButtonPort	equ	PORTB
@@ -33,7 +34,72 @@ AuthSignalPin	equ	.3
 #define	AuthSignal	AuthSignalPort, AuthSignalPin
 
 
+LastTag		udata_shr
+LastTag		res	.3
+LastTagAge	res	.1
+
+
 UserInterfaceLogic	code
+
+
+;******************************************************************************
+
+UiLogicSetup
+	global 	UiLogicSetup
+	
+	call		ClearLastTag
+
+	; Setup port direction
+	banksel	TRISA
+	bsf		ButtonTris, ButtonPin
+	bcf		RedLedTris, RedLedPin
+	bcf		GreenLedTris, GreenLedPin
+	bcf		SpeakerTris, SpeakerPin
+	bcf		AuthSignalTris, AuthSignalPin
+	clrf		ANSEL
+
+	; Setup button interrupt, used to switch modes
+	bsf		INTCON, INTE	; INT0IE bit
+
+	; Setup TMR1 interrupt, used to clear the recently scanned tag
+	banksel	PIE1
+	bsf		PIE1, TMR1IE
+
+	banksel	T1CON
+	movlw	b'00110000'	; Initially off
+	movwf	T1CON
+	
+	; Enable interrupts
+	bsf		INTCON, PEIE
+	bsf		INTCON, GIE
+
+	return
+
+
+;******************************************************************************
+
+OnNormalOperation
+
+	banksel	PORTA
+	bcf		RedLed
+	bcf		GreenLed
+	bcf		Speaker
+	bcf		AuthSignal
+
+	return
+
+
+;******************************************************************************
+
+OnAdminMode
+
+	banksel	PORTA
+	bsf		RedLed
+	bsf		GreenLed
+	bcf		Speaker
+	bcf		AuthSignal
+
+	return
 
 
 ;******************************************************************************
@@ -53,10 +119,12 @@ OnTagNotAuthorized
 OnAuthorizeTag
 	return
 
+
 ;******************************************************************************
 
 OnDeauthorizeTag
 	return
+
 
 ;******************************************************************************
 
@@ -82,41 +150,75 @@ Delay_0
 
 	return
 
+
 ;******************************************************************************
 
-UiSetup
-	; Setup port direction
-	banksel	TRISA
-	bsf		ButtonTris, ButtonPin
-	bcf		RedLedTris, RedLedPin
-	bcf		GreenLedTris, GreenLedPin
-	bcf		SpeakerTris, SpeakerPin
-	bcf		AuthSignalTris, AuthSignalPin
-	clrf		ANSEL
+CheckLastTagAge
+	global	CheckLastTagAge
+
+	incf		LastTagAge, f
+	movlw	.50 			; 50 * ((2^16 bits in timer) / 8e6 herts / 8 prescaler) = ~3.2 sec
+	xorwf	LastTagAge, w
+	skpz
+	return		
 	
-	btfsc	InAdminMode
-	 goto	SetupForAdminMode
-
-	; Normal operation
-	banksel	PORTA
-	bcf		RedLed
-	bcf		GreenLed
-	bcf		Speaker
-	bcf		AuthSignal
-	goto		SetupButtonInterrupt
-
-SetupForAdminMode
-	banksel	PORTA
-	bsf		RedLed
-	bsf		GreenLed
-	bcf		Speaker
-	bcf		AuthSignal
-
-SetupButtonInterrupt
-	bsf		INTCON, INTE	; INT0IE bit
-	bsf		INTCON, GIE
+	call ClearLastTag
+	banksel	T1CON
+	bcf		T1CON, TMR1ON	
 
 	return
+
+
+;******************************************************************************
+
+ClearLastTag
+	
+	clrf		LastTagAge
+	movlw	0xFF
+	movwf	LastTag		; 0xFF
+	clrf		LastTag + .1	; 0x00
+	movwf	LastTag + .2	; 0xFF
+
+	return
+
+
+;******************************************************************************
+
+ScannedTagIsLastTag
+
+	; A tag was recently scanned, start age timer
+	banksel	T1CON
+	bsf		T1CON, TMR1ON
+	
+	movfw	LastTag
+	xorwf	_TagData, w
+	bnz		UpdateLastTag
+	
+	movfw	LastTag + .1
+	xorwf	_TagData + .1, w
+	bnz		UpdateLastTag
+
+	movfw	LastTag + .2
+	xorwf	_TagData + .2, w
+	bnz		UpdateLastTag
+
+	goto		LastTagMatch
+	
+UpdateLastTag
+	movfw	_TagData
+	movwf	LastTag
+	movfw	_TagData + .1
+	movwf	LastTag + .1		
+	movfw	_TagData + .2
+	movwf	LastTag + .2
+
+	bcf		STATUS, C
+	return
+
+LastTagMatch
+	bsf		STATUS, C
+	return
+
 
 ;******************************************************************************
 
@@ -124,12 +226,14 @@ EnterNormalOperation
 	global	EnterNormalOperation
 
 	bcf		InAdminMode
-	call		UiSetup
+	call		OnNormalOperation
 
-NormalOperation
-	call		WaitForTagAndReadRawData
+	;call		WaitForTagAndReadRawData
 	call		ExtractTagDataFromRawData
-	bnc		NormalOperation
+	bnc		EnterNormalOperation
+
+	call		ScannedTagIsLastTag
+	bc		EnterNormalOperation	
 
 	call		FindTagInDb
 	bc		TagAuthorized
@@ -138,11 +242,11 @@ NormalOperation
 TagAuthorized
 	call		SendAuthSignal
 	call		OnTagAuthorized
-	goto		NormalOperation
+	goto		EnterNormalOperation
 
 TagNotAuthorized
 	call		OnTagNotAuthorized
-	goto		NormalOperation
+	goto		EnterNormalOperation
 
 	return
 
@@ -153,26 +257,28 @@ EnterAdminMode
 	global	EnterAdminMode
 
 	bsf		InAdminMode
-	call		UiSetup
+	call		OnAdminMode
 
-AdminMode
-	call		WaitForTagAndReadRawData
+	;call		WaitForTagAndReadRawData
 	call		ExtractTagDataFromRawData
-	bnc		AdminMode
+	bnc		EnterAdminMode
+
+	call		ScannedTagIsLastTag
+	bc		EnterNormalOperation
 
 	call		FindTagInDb
-	bc		AuthorizeTag
+	bnc		AuthorizeTag
 	goto		DeauthorizeTag
 
 AuthorizeTag
 	call		AddTagToDb
 	call		OnAuthorizeTag
-	goto		AdminMode
+	goto		EnterAdminMode
 
 DeauthorizeTag
 	call		RemoveTagFromDb
 	call		OnDeauthorizeTag
-	goto		DeauthorizeTag
+	goto		EnterAdminMode
 
 	return
 

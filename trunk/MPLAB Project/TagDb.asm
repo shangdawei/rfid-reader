@@ -1,7 +1,6 @@
 	#include <p16f88.inc>
 	#include <RfidReader.inc>
 	extern	_TagData
-	extern	_Temp
 
 	errorLevel	-302
 
@@ -105,7 +104,7 @@ FindTagInDb
 	call		ReadEepromByte
 	banksel	EEDATA
 	movfw	EEDATA	; Backup the next record poiter
-	movwf	_Temp
+	movwf	Temp1
 	movlw	_TagDb	; Is the db empty?
 	xorwf	EEDATA, f
 	bz		NoMatchFound
@@ -155,7 +154,7 @@ MatchThirdByte
 AdvanceToNextRecord
 	banksel	EEADR
 	; If all records in db were tried, give up
-	movfw	_Temp	; Contains the backup of next record pointer
+	movfw	Temp1	; Contains the backup of next record pointer
 	xorwf	EEADR, w
 	bz		NoMatchFound 	; If EEADR == next record pointer
 
