@@ -228,7 +228,7 @@ EnterNormalOperation
 	bcf		InAdminMode
 	call		OnNormalOperation
 
-	;call		WaitForTagAndReadRawData
+	call		WaitForTagAndReadRawData
 	call		ExtractTagDataFromRawData
 	bnc		EnterNormalOperation
 
@@ -259,7 +259,7 @@ EnterAdminMode
 	bsf		InAdminMode
 	call		OnAdminMode
 
-	;call		WaitForTagAndReadRawData
+	call		WaitForTagAndReadRawData
 	call		ExtractTagDataFromRawData
 	bnc		EnterAdminMode
 

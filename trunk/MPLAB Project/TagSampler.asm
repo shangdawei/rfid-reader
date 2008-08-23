@@ -79,14 +79,14 @@ HoldForHighBit
 	 goto	HoldForHighBit
 	; from experiment 168 cycles from edge
 
-d1	db	0
-	;240 cycles
-	movlw	0x4F
-	movwf	d1
-Delay_0
-	decfsz	d1, f
-	goto	Delay_0
-	goto	$+1
+;d1	db	.0
+;	;240 cycles
+;	movlw	0x4F
+;	movwf	d1
+;Delay_0
+;	decfsz	d1, f
+;	goto	Delay_0
+;	goto	$+1
 
 	return
 
@@ -118,6 +118,7 @@ StoreBit
 BufferFull
 	banksel	PIE1
 	bcf		PIE1, TMR2IE 	; disable timer interrupt	
+	bsf		CardRead
 		
 BitStored
 	return
@@ -127,6 +128,8 @@ BitStored
 
 WaitForTagAndReadRawData
 	global	WaitForTagAndReadRawData
+
+	bcf		CardRead
 
 	;-------------------------------------------------------------------------
 	; Set up the comparator, timers, and indirect addressing
@@ -170,7 +173,8 @@ WaitForTagAndReadRawData
 	movwf	T2CON		; turn on the timer, 1:4 prescaler
 
 WaitForInterrupt
-	goto WaitForInterrupt
+	btfss	CardRead	
+	goto 	WaitForInterrupt
 
 	return
 
