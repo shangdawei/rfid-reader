@@ -77,13 +77,15 @@ HoldForHighBit
 	 goto	HoldForHighBit
 	; from experiment 168 cycles from edge
 
-	nop
-	;240 cycles
-	movlw	0x4F
+
+	;148 cycles
+	movlw	0x31
 	movwf	Temp1
 Delay_0
 	decfsz	Temp1, f
 	goto	Delay_0
+
+	;2 cycles
 	goto	$+1
 
 	return
