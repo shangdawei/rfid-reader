@@ -1,11 +1,15 @@
 	#include <p16f88.inc>
 	#include <RfidReader.inc>
+	extern	TurnLedOn
+	extern	TurnLedOff
+	extern	ExtractTagDataFromRawData
 	
 	errorlevel	-302
 
-DataBuffer idata 0x110 
+TagDataBuffer idata 0x110 
 BitsLeftInCurrentByte	db	.8	
-RawDataBuffer  		res 	.94
+BitBuffer  			res 	.94
+LastAddrInBuffer		equ 	0x6F
 
 
 TagSamplerCode code
@@ -79,14 +83,14 @@ HoldForHighBit
 	 goto	HoldForHighBit
 	; from experiment 168 cycles from edge
 
-;d1	db	.0
-;	;240 cycles
-;	movlw	0x4F
-;	movwf	d1
-;Delay_0
-;	decfsz	d1, f
-;	goto	Delay_0
-;	goto	$+1
+	nop
+	;240 cycles
+	movlw	0x4F
+	movwf	Temp1
+Delay_0
+	decfsz	Temp1, f
+	goto	Delay_0
+	goto	$+1
 
 	return
 
@@ -95,6 +99,10 @@ HoldForHighBit
 
 StoreBit
 	global	StoreBit
+	
+	; debug pulse, should see it every 400 us (bit time) sharp!
+	call		TurnLedOn
+	call		TurnLedOff
 
 	call 	GetBit
 	rlf		INDF, f
@@ -107,8 +115,8 @@ StoreBit
 	movfw	FSR
 	
 	; check if buffer is full
-	addlw	.255 - LastAddrInRawDataBuffer	
-	bc		BufferFull ; If FSR > LastAddrInRawDataBuffer
+	addlw	.255 - LastAddrInBuffer	
+	bc		BufferFull ; If FSR > LastAddrInBuffer
 	
 	; reinitialize the "bits left" value, since we are at the next, empty byte
 	movlw	.8
@@ -118,7 +126,7 @@ StoreBit
 BufferFull
 	banksel	PIE1
 	bcf		PIE1, TMR2IE 	; disable timer interrupt	
-	bsf		CardRead
+	call		ExtractTagDataFromRawData
 		
 BitStored
 	return
@@ -128,8 +136,6 @@ BitStored
 
 WaitForTagAndReadRawData
 	global	WaitForTagAndReadRawData
-
-	bcf		CardRead
 
 	;-------------------------------------------------------------------------
 	; Set up the comparator, timers, and indirect addressing
@@ -150,8 +156,8 @@ WaitForTagAndReadRawData
 
 	; Select the correct bank for indirect addressing
 	bsf		STATUS, IRP
-	; Initialize the FSR to point to RawDataBuffer for indirect addressing
-	movlw	RawDataBuffer
+	; Initialize the FSR to point to TagData for indirect addressing
+	movlw	BitBuffer
 	movwf	FSR
 
 
@@ -173,8 +179,7 @@ WaitForTagAndReadRawData
 	movwf	T2CON		; turn on the timer, 1:4 prescaler
 
 WaitForInterrupt
-	btfss	CardRead	
-	goto 	WaitForInterrupt
+	goto WaitForInterrupt
 
 	return
 
