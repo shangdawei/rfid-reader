@@ -3,9 +3,10 @@
 
 	errorLevel	-302
 
+#define	_BitCounter	Temp1
+#define	_ByteCounter	Temp2
+
 TagSampleProcessorVars	udata_shr 0x070
-_BitCounter	res	.1
-_ByteCounter	res	.1
 _TagData		res	.4
 	global	_TagData
 

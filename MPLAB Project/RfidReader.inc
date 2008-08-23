@@ -1,3 +1,3 @@
 	#include	<RfidReaderMain.inc>
-	extern	Temp1, Temp2, Flags
+	extern	Temp1, Temp2, Temp3, Flags
 

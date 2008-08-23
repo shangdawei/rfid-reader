@@ -47,8 +47,6 @@ UserInterfaceLogic	code
 UiLogicSetup
 	global 	UiLogicSetup
 	
-	call		ClearLastTag
-
 	; Setup port direction
 	banksel	TRISA
 	bsf		ButtonTris, ButtonPin
@@ -60,17 +58,6 @@ UiLogicSetup
 
 	; Setup button interrupt, used to switch modes
 	bsf		INTCON, INTE	; INT0IE bit
-
-;	; Setup TMR1 interrupt, used to clear the recently scanned tag
-;	banksel	PIE1
-;	bsf		PIE1, TMR1IE
-;
-;	banksel	T1CON
-;	movlw	b'00110000'	; Initially off
-;	movwf	T1CON
-	
-	; Enable interrupts
-	bsf		INTCON, PEIE
 	bsf		INTCON, GIE
 
 	return
@@ -153,75 +140,6 @@ Delay_0
 
 ;******************************************************************************
 
-CheckLastTagAge
-	global	CheckLastTagAge
-
-	incf		LastTagAge, f
-	movlw	.50 			; 50 * ((2^16 bits in timer) / 8e6 herts / 8 prescaler) = ~3.2 sec
-	xorwf	LastTagAge, w
-	skpz
-	return		
-	
-	call ClearLastTag
-	banksel	T1CON
-	bcf		T1CON, TMR1ON	
-
-	return
-
-
-;******************************************************************************
-
-ClearLastTag
-	
-	clrf		LastTagAge
-	movlw	0xFF
-	movwf	LastTag		; 0xFF
-	clrf		LastTag + .1	; 0x00
-	movwf	LastTag + .2	; 0xFF
-
-	return
-
-
-;******************************************************************************
-
-ScannedTagIsLastTag
-
-	; A tag was recently scanned, start age timer
-	banksel	T1CON
-	bsf		T1CON, TMR1ON
-	
-	movfw	LastTag
-	xorwf	_TagData, w
-	bnz		UpdateLastTag
-	
-	movfw	LastTag + .1
-	xorwf	_TagData + .1, w
-	bnz		UpdateLastTag
-
-	movfw	LastTag + .2
-	xorwf	_TagData + .2, w
-	bnz		UpdateLastTag
-
-	goto		LastTagMatch
-	
-UpdateLastTag
-	movfw	_TagData
-	movwf	LastTag
-	movfw	_TagData + .1
-	movwf	LastTag + .1		
-	movfw	_TagData + .2
-	movwf	LastTag + .2
-
-	bcf		STATUS, C
-	return
-
-LastTagMatch
-	bsf		STATUS, C
-	return
-
-
-;******************************************************************************
-
 EnterNormalOperation
 	global	EnterNormalOperation
 
@@ -232,9 +150,6 @@ EnterNormalOperation
 	call		ExtractTagDataFromRawData
 	bnc		EnterNormalOperation
 
-	call		ScannedTagIsLastTag
-	bc		EnterNormalOperation	
-
 	call		FindTagInDb
 	bc		TagAuthorized
 	goto		TagNotAuthorized
@@ -242,10 +157,12 @@ EnterNormalOperation
 TagAuthorized
 	call		SendAuthSignal
 	call		OnTagAuthorized
+	call		Delay3sec
 	goto		EnterNormalOperation
 
 TagNotAuthorized
 	call		OnTagNotAuthorized
+	call		Delay3sec
 	goto		EnterNormalOperation
 
 	return
@@ -263,9 +180,6 @@ EnterAdminMode
 	call		ExtractTagDataFromRawData
 	bnc		EnterAdminMode
 
-	call		ScannedTagIsLastTag
-	bc		EnterNormalOperation
-
 	call		FindTagInDb
 	bnc		AuthorizeTag
 	goto		DeauthorizeTag
@@ -273,13 +187,42 @@ EnterAdminMode
 AuthorizeTag
 	call		AddTagToDb
 	call		OnAuthorizeTag
+	call		Delay3sec
 	goto		EnterAdminMode
 
 DeauthorizeTag
 	call		RemoveTagFromDb
 	call		OnDeauthorizeTag
+	call		Delay3sec
 	goto		EnterAdminMode
 
 	return
+
+
+;******************************************************************************
+
+Delay3sec
+			;5999992 cycles
+	movlw	0x35
+	movwf	Temp1
+	movlw	0x15
+	movwf	Temp2
+	movlw	0x0E
+	movwf	Temp3
+Delay3sec_0
+	decfsz	Temp1, f
+	goto	$+2
+	decfsz	Temp2, f
+	goto	$+2
+	decfsz	Temp3, f
+	goto	Delay3sec_0
+
+			;4 cycles
+	goto	$+1
+	goto	$+1
+
+			;4 cycles (including call)
+	return
+
 
 	end
