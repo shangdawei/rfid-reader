@@ -98,6 +98,12 @@ OnTagAuthorized
 ;******************************************************************************
 
 OnTagNotAuthorized
+
+	banksel	PORTA
+	bsf		RedLed
+	call		Delay150ms
+	bcf		RedLed
+
 	return
 
 
@@ -157,12 +163,12 @@ EnterNormalOperation
 TagAuthorized
 	call		SendAuthSignal
 	call		OnTagAuthorized
-	call		Delay3sec
+	;call		Delay3sec
 	goto		EnterNormalOperation
 
 TagNotAuthorized
 	call		OnTagNotAuthorized
-	call		Delay3sec
+	;call		Delay3sec
 	goto		EnterNormalOperation
 
 	return
@@ -220,6 +226,26 @@ Delay3sec_0
 			;4 cycles
 	goto	$+1
 	goto	$+1
+
+			;4 cycles (including call)
+	return
+
+
+Delay150ms
+			;299993 cycles
+	movlw	0x5E
+	movwf	Temp1
+	movlw	0xEB
+	movwf	Temp2
+Delay150ms_0
+	decfsz	Temp1, f
+	goto	$+2
+	decfsz	Temp2, f
+	goto	Delay150ms_0
+
+			;3 cycles
+	goto	$+1
+	nop
 
 			;4 cycles (including call)
 	return
