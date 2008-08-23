@@ -63,6 +63,7 @@
 
      LIST      p=16F88              ; list directive to define processor
      #INCLUDE <p16f88.inc>          ; processor specific variable definitions
+	#include <RfidReaderMain.inc>
 	
 	errorlevel -302 ;remove message about using proper bank
 
@@ -100,13 +101,15 @@
 ;
 ;------------------------------------------------------------------------------
 
-; Example of using Shared Uninitialized Data Section
-INT_VAR        UDATA_SHR       
-W_TEMP         RES        1    ; w register for context saving (ACCESS)
-STATUS_TEMP    RES        1    ; status used for context saving (ACCESS)
-PCLATH_TEMP    RES        1    ; variable used for context saving
-Flags		res		.1
-	global	Flags
+Globals		udata_shr
+Temp1		res		.1	; General purpose temp variables
+Temp2		res		.1
+Flags		res		.1	; Status flags for program flow
+	global	Temp1, Temp2, Flags
+
+ContextVars	udata_shr
+STATUS_TEMP	res		.1
+PCLATH_TEMP	res		.1
 
 ;------------------------------------------------------------------------------
 ; RESET VECTOR
@@ -122,32 +125,42 @@ RESET     CODE    0x0000            ; processor reset vector
 
 INT_VECT  CODE    0x0004        ; interrupt vector location
 
-	; Context saving for ISR
-	MOVWF   W_TEMP            ; save off current W register contents
-	MOVF    STATUS,W          ; move status register into W register
-	MOVWF   STATUS_TEMP       ; save off contents of STATUS register
-	MOVF    PCLATH,W          ; move pclath register into W register
-	MOVWF   PCLATH_TEMP       ; save off contents of PCLATH register
-	
+	; Save context
+	movfw	STATUS      	; move status register into W register
+	movwf	STATUS_TEMP	; save off contents of STATUS register
+	movfw	PCLATH		; move pclath register into W register
+	movwf	PCLATH_TEMP	; save off contents of PCLATH register
+
+
+	; What caused the interrupt?
+	banksel	PIE1
 	btfsc	PIE1, TMR2IF
 	 goto	TMR2_Interrupt
+	btfsc	INTCON, INTF
+	 goto	Button_Interrupt
+	goto 	RestoreContext
 
-	goto RestoreContext
 
 TMR2_Interrupt
+	bcf		PIE1, TMR2IF	
 	call		StoreBit
-	bcf		PIE1, TMR2IF
+	goto		RestoreContext
 
+Button_Interrupt
+	bcf		INTCON, INTF
+	btfss	InAdminMode
+	 goto	EnterAdminMode
+	goto		EnterNormalOperation
 		
+
 RestoreContext
-	; Restore context before returning from interrupt
-	MOVF    PCLATH_TEMP,W     ; retrieve copy of PCLATH register
-	MOVWF   PCLATH            ; restore pre-isr PCLATH register contents
-	MOVF    STATUS_TEMP,W     ; retrieve copy of STATUS register
-	MOVWF   STATUS            ; restore pre-isr STATUS register contents
-	SWAPF   W_TEMP,F
-	SWAPF   W_TEMP,W          ; restore pre-isr W register contents
-	RETFIE                    ; return from interrupt
+	movfw	PCLATH_TEMP	; retrieve copy of PCLATH register
+	movwf	PCLATH		; restore pre-isr PCLATH register contents
+	movfw	STATUS_TEMP	; retrieve copy of STATUS register
+	movwf	STATUS		; restore pre-isr STATUS register contents
+	
+	retfie
+
 
 ;------------------------------------------------------------------------------
 ; MAIN PROGRAM
@@ -161,8 +174,9 @@ START
 	movlw	b'01111100'
 	movwf	OSCCON
 
+MainLoop
 	call		EnterNormalOperation
 
-	goto		START
+	goto		MainLoop
 	
 	end
