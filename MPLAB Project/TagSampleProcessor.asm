@@ -6,11 +6,8 @@
 TagSampleProcessorVars	udata_shr 0x070
 _BitCounter	res	.1
 _ByteCounter	res	.1
-_STATUS_TEMP	res	.1
 _TagData		res	.4
 	global	_TagData
-_Temp		res	.1
-	global	_Temp
 
 _EvenParityBit	equ	.0
 _OddParityBit	equ	.1
@@ -27,9 +24,6 @@ ClearTagData
 	clrf		_TagData + .1
 	clrf		_TagData + .2
 	clrf		_TagData + .3
-	clrf		_TagData + .4
-	clrf		_TagData + .5
-	clrf		_TagData + .6
 
 	return	
 
@@ -46,22 +40,22 @@ RotateRawDataBufferAddrOneBit
 	movwf	FSR
 
 	; initialize carry
-	bcf		_STATUS_TEMP, C
+	bcf		Temp1, C
 	btfsc	RawDataBufferAddr, .7
-	 bsf		_STATUS_TEMP, C
+	 bsf		Temp1, C
 
 RotateCurrentRawDataByte
 	; load carry
 	bcf		STATUS, C
-	btfsc	_STATUS_TEMP, C
+	btfsc	Temp1, C
 	 bsf		STATUS, C	
 
 	rlf		INDF, f
 
 	; backup carry
-	bcf		_STATUS_TEMP, C
+	bcf		Temp1, C
 	btfsc	STATUS, C
-	 bsf		_STATUS_TEMP, C
+	 bsf		Temp1, C
 
 	; check if if we rotated every byte in the buffer
 	decf		FSR, f	
@@ -196,14 +190,14 @@ DecodeTagData
 
 	; move parity to the last byte in TagData
 	movfw	_TagData
-	movwf	_Temp
+	movwf	Temp2
 	movfw	_TagData + .1
 	movwf	_TagData
 	movfw	_TagData + .2
 	movwf	_TagData + .1
 	movfw	_TagData + .3
 	movwf	_TagData + .2
-	movfw	_Temp
+	movfw	Temp2
 	movwf	_TagData + .3
 
 	bsf		STATUS, C
@@ -219,34 +213,34 @@ TagDataDecodeFailed
 CheckTagDataParity
 	
 	; calculate even parity
-	clrf		_Temp
+	clrf		Temp2
 
 	btfsc	_TagData + .0, .7
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .0, .6
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .0, .5
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .0, .4
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .0, .3
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .0, .2
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .0, .1
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .0, .0
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .1, .7
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .1, .6
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .1, .5
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .1, .4
-	 incf	_Temp,f
+	 incf	Temp2,f
 
-	btfsc	_Temp, .0
+	btfsc	Temp2, .0
 	 goto	CalcedEvenParityIsOne
 
 CalcedEvenParityIsZero
@@ -259,34 +253,34 @@ CalcedEvenParityIsOne
 	 goto	WrongParity	
 
 CalcOddParity
-	clrf		_Temp
+	clrf		Temp2
 
 	btfsc	_TagData + .1, .3
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .1, .2
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .1, .1
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .1, .0
-	 incf	_Temp,f	
+	 incf	Temp2,f	
 	btfsc	_TagData + .2, .7
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .2, .6
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .2, .5
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .2, .4
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .2, .3
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .2, .2
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .2, .1
-	 incf	_Temp,f
+	 incf	Temp2,f
 	btfsc	_TagData + .2, .0
-	 incf	_Temp,f
+	 incf	Temp2,f
 
-	btfss	_Temp, .0
+	btfss	Temp2, .0
 	 goto	CalcedOddParityIsOne
 
 CalcedOddParityIsZero
@@ -318,8 +312,8 @@ ExtractTagDataFromRawData
 	movlw	.8
 	movwf	_BitCounter
 	clrf		_ByteCounter
-	clrf		_STATUS_TEMP
-	clrf		_Temp
+	clrf		Temp1
+	clrf		Temp2
 
 RotateToNextHeaderInstance
 	call		RotateRawDataBufferAddrToHeader
