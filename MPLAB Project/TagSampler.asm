@@ -145,7 +145,11 @@ WaitForTagAndReadRawData
 	bcf		INTCON, 5
 	; TMR0, assign postscaler to WDT, use instruction clock
 	bcf		OPTION_REG, 5
-	bsf		OPTION_REG, 3	
+	bsf		OPTION_REG, 3
+
+	banksel	T2CON
+	bcf		T2CON, TMR2ON
+	clrf		TMR2
 
 	; Select the correct bank for indirect addressing
 	bsf		STATUS, IRP

@@ -77,6 +77,13 @@ TMR2_Interrupt
 	goto		RestoreContext
 
 Button_Interrupt
+	; disable stray timer interrupt from sampling
+	banksel	PIE1
+	bcf		PIE1, TMR2IE 	
+	banksel	TMR2
+	clrf		TMR2
+	bcf		PIR1, TMR2IF
+
 	bcf		INTCON, INTF
 	bsf		INTCON, GIE
 	btfss	InAdminMode

@@ -92,6 +92,12 @@ OnAdminMode
 ;******************************************************************************
 
 OnTagAuthorized
+
+	banksel	PORTA
+	bsf		GreenLed
+	call		Delay150ms
+	bcf		GreenLed	
+
 	return
 
 
@@ -110,12 +116,38 @@ OnTagNotAuthorized
 ;******************************************************************************
 
 OnAuthorizeTag
+
+	banksel	PORTA
+	bcf		RedLed
+	bcf		GreenLed
+	
+	bsf		GreenLed
+	call		Delay150ms
+	bcf		GreenLed
+	call		Delay150ms
+	bsf		GreenLed
+	call		Delay150ms
+	bcf		GreenLed
+
 	return
 
 
 ;******************************************************************************
 
 OnDeauthorizeTag
+
+	banksel	PORTA
+	bcf		RedLed
+	bcf		GreenLed
+	
+	bsf		RedLed
+	call		Delay150ms
+	bcf		RedLed
+	call		Delay150ms
+	bsf		RedLed
+	call		Delay150ms
+	bcf		RedLed
+
 	return
 
 
@@ -163,10 +195,12 @@ EnterNormalOperation
 TagAuthorized
 	call		SendAuthSignal
 	call		OnTagAuthorized
+	call		Delay500ms
 	goto		EnterNormalOperation
 
 TagNotAuthorized
 	call		OnTagNotAuthorized
+	call		Delay500ms
 	goto		EnterNormalOperation
 
 	return
@@ -191,17 +225,45 @@ EnterAdminMode
 AuthorizeTag
 	call		AddTagToDb
 	call		OnAuthorizeTag
+	call		Delay500ms
 	goto		EnterAdminMode
 
 DeauthorizeTag
 	call		RemoveTagFromDb
 	call		OnDeauthorizeTag
+	call		Delay500ms
 	goto		EnterAdminMode
 
 	return
 
 
 ;******************************************************************************
+
+
+Delay500ms
+			;999990 cycles
+	movlw	0x07
+	movwf	Temp1
+	movlw	0x2F
+	movwf	Temp2
+	movlw	0x03
+	movwf	Temp3
+Delay500ms_0
+	decfsz	Temp1, f
+	goto	$+2
+	decfsz	Temp2, f
+	goto	$+2
+	decfsz	Temp3, f
+	goto	Delay500ms_0
+
+			;6 cycles
+	goto	$+1
+	goto	$+1
+	goto	$+1
+
+			;4 cycles (including call)
+	return
+
 
 Delay150ms
 			;299993 cycles
