@@ -76,16 +76,15 @@ HoldForHighBit
 	btfss	STATUS, C
 	 goto	HoldForHighBit
 	; from experiment 168 cycles from edge
-
-
-	;148 cycles
-	movlw	0x31
+	
+	;208 cycles
+	movlw	0x45
 	movwf	Temp1
 Delay_0
 	decfsz	Temp1, f
 	goto	Delay_0
 
-	;2 cycles
+			;2 cycles
 	goto	$+1
 
 	return
@@ -162,7 +161,7 @@ WaitForTagAndReadRawData
 	call 	SyncWithFirstBitOfTag
 
 	banksel	PR2
-	movlw	.198
+	movlw	.200
 	movwf	PR2			; will cause an interrupt every 800 cycles
 	bsf		INTCON, PEIE	; enable interrupts
 	bsf		INTCON, GIE
