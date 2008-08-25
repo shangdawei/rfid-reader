@@ -78,6 +78,7 @@ TMR2_Interrupt
 
 Button_Interrupt
 	bcf		INTCON, INTF
+	bsf		INTCON, GIE
 	btfss	InAdminMode
 	 goto	EnterAdminMode
 	goto		EnterNormalOperation

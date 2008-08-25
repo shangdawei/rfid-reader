@@ -163,12 +163,10 @@ EnterNormalOperation
 TagAuthorized
 	call		SendAuthSignal
 	call		OnTagAuthorized
-	;call		Delay3sec
 	goto		EnterNormalOperation
 
 TagNotAuthorized
 	call		OnTagNotAuthorized
-	;call		Delay3sec
 	goto		EnterNormalOperation
 
 	return
@@ -193,43 +191,17 @@ EnterAdminMode
 AuthorizeTag
 	call		AddTagToDb
 	call		OnAuthorizeTag
-	call		Delay3sec
 	goto		EnterAdminMode
 
 DeauthorizeTag
 	call		RemoveTagFromDb
 	call		OnDeauthorizeTag
-	call		Delay3sec
 	goto		EnterAdminMode
 
 	return
 
 
 ;******************************************************************************
-
-Delay3sec
-			;5999992 cycles
-	movlw	0x35
-	movwf	Temp1
-	movlw	0x15
-	movwf	Temp2
-	movlw	0x0E
-	movwf	Temp3
-Delay3sec_0
-	decfsz	Temp1, f
-	goto	$+2
-	decfsz	Temp2, f
-	goto	$+2
-	decfsz	Temp3, f
-	goto	Delay3sec_0
-
-			;4 cycles
-	goto	$+1
-	goto	$+1
-
-			;4 cycles (including call)
-	return
-
 
 Delay150ms
 			;299993 cycles
