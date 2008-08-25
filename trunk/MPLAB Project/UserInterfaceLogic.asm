@@ -95,8 +95,10 @@ OnTagAuthorized
 
 	banksel	PORTA
 	bsf		GreenLed
+	bsf		Speaker
 	call		Delay150ms
 	bcf		GreenLed	
+	bcf		Speaker
 
 	return
 
@@ -107,8 +109,16 @@ OnTagNotAuthorized
 
 	banksel	PORTA
 	bsf		RedLed
+	bsf		Speaker
 	call		Delay150ms
 	bcf		RedLed
+	bcf		Speaker
+	call		Delay150ms
+	bsf		RedLed
+	bsf		Speaker
+	call		Delay150ms
+	bcf		RedLed
+	bcf		Speaker
 
 	return
 
@@ -122,12 +132,11 @@ OnAuthorizeTag
 	bcf		GreenLed
 	
 	bsf		GreenLed
+	bsf		Speaker
+	call		Delay150ms
 	call		Delay150ms
 	bcf		GreenLed
-	call		Delay150ms
-	bsf		GreenLed
-	call		Delay150ms
-	bcf		GreenLed
+	bcf		Speaker
 
 	return
 
@@ -141,12 +150,16 @@ OnDeauthorizeTag
 	bcf		GreenLed
 	
 	bsf		RedLed
+	bsf		Speaker
 	call		Delay150ms
 	bcf		RedLed
+	bcf		Speaker
 	call		Delay150ms
 	bsf		RedLed
+	bsf		Speaker
 	call		Delay150ms
 	bcf		RedLed
+	bcf		Speaker
 
 	return
 
