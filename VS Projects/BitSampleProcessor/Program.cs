@@ -25,9 +25,9 @@ namespace BitSampleProcessor
             SampleProcessor sampleProcessor = new SampleProcessor();
             sampleProcessor.LoadFromFile(new FileInfo(rawFilePath));
 
-            sampleProcessor.BreakPlacingDigitSequencePerLine();
-            sampleProcessor.PlaceCharacterCountInFirstColumn();
-            sampleProcessor.AddCountFrequencyAtEnd();
+			sampleProcessor.BreakPlacingDigitSequencePerLine();
+			sampleProcessor.PlaceCharacterCountInFirstColumn();
+			sampleProcessor.AddCountFrequencyAtEnd();
 
             Regex matchFileName = new Regex(@"(.+)(\.txt)$", RegexOptions.IgnoreCase);
             string processedFilePath = matchFileName.Replace(rawFilePath, "$1_processed$2");
@@ -37,6 +37,17 @@ namespace BitSampleProcessor
 
             return processedFilePath;
         }
+
+		internal static string ProcessData( string rawData )
+		{
+			SampleProcessor sampleProcessor = new SampleProcessor();
+			sampleProcessor.Load( rawData );
+
+			sampleProcessor.ManchesterDecode();
+			//sampleProcessor.CalculateParity();
+
+			return sampleProcessor.ProcessedData;
+		}
 
         internal static void OpenProcessedFile(string fileName)
         {
