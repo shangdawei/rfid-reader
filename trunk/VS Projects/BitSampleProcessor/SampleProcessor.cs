@@ -23,6 +23,52 @@ namespace BitSampleProcessor
             }
         }
 
+		public void Load( string rawData )
+		{
+			Regex matchAllButBinary = new Regex( "([^01]+)", RegexOptions.Multiline );
+			this.rawData = matchAllButBinary.Replace( rawData, string.Empty );
+		}
+
+		public void ManchesterDecode()
+		{
+			StringWriter writer = new StringWriter();
+
+			for( int i=0; i < rawData.Length ;i=i+2 )
+			{				
+				writer.Write( rawData[i] );
+			}
+
+			this.rawData = writer.GetStringBuilder().ToString();
+		}
+
+		public void CalculateParity()
+		{
+			int evenParity = (rawData[0] == '0' ? 0 : 1);
+			int oddParity = (rawData[rawData.Length - 1] == '0' ? 0 : 1);
+			int calculatedEvenParity;
+			int calculatedOddParity;
+
+			string evenParityBits = rawData.Substring( 1, 12 );
+			string oddParityBits = rawData.Substring( 13, 12 );
+
+			int onesCount = 0;
+			foreach( char bit in evenParityBits.ToCharArray() ) {
+				if( bit == '1' ) onesCount++;
+			}
+			calculatedEvenParity = onesCount % 2 == 0 ? 0 : 1;
+
+			onesCount = 0;
+			foreach( char bit in oddParityBits.ToCharArray() ) {
+				if( bit == '1' ) onesCount++;
+			}
+			calculatedOddParity = onesCount % 2 == 0 ? 1 : 0;
+
+			this.rawData +=
+				Environment.NewLine + "Data - E: " + evenParity + " O: " + oddParity +
+				Environment.NewLine + "Calc - E: " + calculatedEvenParity + " O: " + calculatedOddParity;
+			this.rawData += Environment.NewLine + (evenParity == calculatedEvenParity && oddParity == calculatedOddParity ? "The data is intact" : "Tranmission error");
+		}
+
         public void BreakPlacingDigitSequencePerLine()
         {
             Regex matchSequences = new Regex("(0+|1+)");
